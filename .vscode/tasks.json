@@ -1,0 +1,44 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "run-backend-local",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"Set-Location e:\\WORK\\RepoMindAI\\backend; $env:LOCAL_ONLY='true'; $env:DATABASE_URL='sqlite:///./repomind.db'; $env:JWT_SECRET='change-me'; python -m uvicorn app.main:app --host 0.0.0.0 --port 8000"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "run-frontend-local",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"Set-Location e:\\WORK\\RepoMindAI\\frontend; $env:NEXT_PUBLIC_API_BASE_URL='http://localhost:8000'; npm run dev"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "run-backend-local",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"Set-Location e:\\WORK\\RepoMindAI\\backend; $env:LOCAL_ONLY='true'; $env:DATABASE_URL='sqlite:///./repomind.db'; $env:JWT_SECRET='change-me'; python -m uvicorn app.main:app --host 0.0.0.0 --port 8000"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}

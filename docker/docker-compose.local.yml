@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.backend
+    env_file:
+      - ../.env.local
+    environment:
+      LOCAL_ONLY: "true"
+      DATABASE_URL: sqlite:///./repomind.db
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../backend:/app
+      - repomind-data:/app/data
+
+  frontend:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.frontend
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../frontend:/app
+    depends_on:
+      - backend
+
+volumes:
+  repomind-data:
