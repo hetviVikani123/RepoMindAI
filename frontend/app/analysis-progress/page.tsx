@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Shell } from "@/components/Shell";
 import { useRepo } from "@/lib/store";
-import { fetchPipelineStatus, repositoryStatus } from "@/lib/api";
+import { fetchPipelineStatus, repositoryStatus, triggerPipeline } from "@/lib/api";
 
 type Stage = {
   stage_name: string;
@@ -27,7 +27,30 @@ export default function AnalysisProgressPage() {
   const [stages, setStages] = useState<Stage[]>([]);
   const [embeddings, setEmbeddings] = useState<number>(0);
   const [loading, setLoading] = useState(true);
+  const [triggering, setTriggering] = useState(false);
   const [done, setDone] = useState(false);
+
+  const pollStatus = useCallback(async () => {
+    if (!activeRepo) return;
+    try {
+      const pipelineData = await fetchPipelineStatus(activeRepo.id).catch(() => null);
+      if (pipelineData?.stages) {
+        setStages(pipelineData.stages);
+        const allFinished = pipelineData.stages.length > 0 && pipelineData.stages.every(
+          (s: Stage) => s.status === "completed" || s.status === "failed"
+        );
+        if (allFinished) {
+          setDone(true);
+        }
+      }
+
+      const statusData = await repositoryStatus(activeRepo.id).catch(() => null);
+      if (statusData) {
+        setEmbeddings(statusData.embeddings);
+      }
+    } catch (_) {}
+    setLoading(false);
+  }, [activeRepo]);
 
   useEffect(() => {
     if (!activeRepo) {
@@ -35,32 +58,24 @@ export default function AnalysisProgressPage() {
       return;
     }
 
-    let tries = 0;
-    const interval = setInterval(async () => {
-      tries++;
-      try {
-        const pipelineData = await fetchPipelineStatus(activeRepo.id).catch(() => null);
-        if (pipelineData?.stages) {
-          setStages(pipelineData.stages);
-        }
-
-        const statusData = await repositoryStatus(activeRepo.id);
-        setEmbeddings(statusData.embeddings);
-
-        const allDone = pipelineData.stages.every(
-          (s: Stage) => s.status === "completed" || s.status === "failed"
-        );
-        if (allDone) {
-          setDone(true);
-          clearInterval(interval);
-        }
-      } catch (_) {}
-      setLoading(false);
-      if (tries > 60) clearInterval(interval); // 2 min timeout
-    }, 2000);
-
+    pollStatus();
+    const interval = setInterval(pollStatus, 1500);
     return () => clearInterval(interval);
-  }, [activeRepo]);
+  }, [activeRepo, pollStatus]);
+
+  async function handleTrigger() {
+    if (!activeRepo || triggering) return;
+    setTriggering(true);
+    setDone(false);
+    try {
+      await triggerPipeline(activeRepo.id);
+      await pollStatus();
+    } catch (e) {
+      alert(`Failed to trigger analysis: ${(e as Error).message}`);
+    } finally {
+      setTriggering(false);
+    }
+  }
 
   if (!activeRepo) {
     return (
@@ -90,11 +105,38 @@ export default function AnalysisProgressPage() {
 
   const completedCount = stages.filter((s) => s.status === "completed").length;
   const progress = stages.length > 0 ? Math.round((completedCount / stages.length) * 100) : 0;
+  const hasRunning = stages.some((s) => s.status === "running");
 
   return (
     <Shell title="Analysis Progress" subtitle={`Pipeline stages for: ${activeRepo.name}`}>
-      {/* Progress bar */}
+      {/* Header action panel */}
       <section className="panel p-6">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+          <div>
+            <h2 style={{ margin: 0, fontSize: "16px", fontWeight: 700 }}>End-to-End Analysis Pipeline</h2>
+            <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "13px" }}>
+              Cloner → Language Detector → AST Parser → Embeddings → Knowledge Graph → Static Analysis → RAG Index
+            </p>
+          </div>
+          <button
+            onClick={handleTrigger}
+            disabled={triggering || hasRunning}
+            style={{
+              background: triggering || hasRunning ? "#94a3b8" : "linear-gradient(135deg, #6366f1, #8b5cf6)",
+              color: "#fff",
+              border: "none",
+              borderRadius: "10px",
+              padding: "10px 20px",
+              fontWeight: 600,
+              fontSize: "13px",
+              cursor: triggering || hasRunning ? "not-allowed" : "pointer",
+            }}
+          >
+            {hasRunning ? "⚙️ Pipeline Running…" : triggering ? "Starting…" : done ? "🔄 Re-run Full Pipeline" : "▶ Start Analysis Pipeline"}
+          </button>
+        </div>
+
+        {/* Progress bar */}
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
           <span style={{ fontWeight: 600, fontSize: "14px" }}>Overall Progress</span>
           <span style={{ fontWeight: 700, fontSize: "14px", color: "#6366f1" }}>{progress}%</span>
@@ -106,7 +148,7 @@ export default function AnalysisProgressPage() {
               width: `${progress}%`,
               background: "linear-gradient(90deg, #6366f1, #8b5cf6)",
               borderRadius: "100px",
-              transition: "width 0.5s ease",
+              transition: "width 0.4s ease",
             }}
           />
         </div>
@@ -128,7 +170,7 @@ export default function AnalysisProgressPage() {
           </div>
         ) : stages.length === 0 ? (
           <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
-            Pipeline not yet started. Import a repository to begin.
+            Pipeline not yet started. Click <strong>Start Analysis Pipeline</strong> to begin.
           </div>
         ) : (
           stages.map((stage, idx) => {
@@ -142,8 +184,10 @@ export default function AnalysisProgressPage() {
                   gap: "14px",
                   padding: "14px 16px",
                   borderRadius: "12px",
-                  border: "1px solid #e2e8f0",
-                  background: "#fff",
+                  border: `1px solid ${stage.status === "running" ? "#f59e0b" : "#e2e8f0"}`,
+                  background: stage.status === "running" ? "#fffbeb" : "#fff",
+                  boxShadow: stage.status === "running" ? "0 4px 12px rgba(245,158,11,0.12)" : "none",
+                  transition: "all 0.2s ease",
                 }}
               >
                 {/* Step number + dot */}
@@ -192,11 +236,13 @@ export default function AnalysisProgressPage() {
                     </span>
                   </div>
                   {stage.message && (
-                    <p style={{ color: "#64748b", fontSize: "12px", margin: 0 }}>{stage.message}</p>
+                    <p style={{ color: stage.status === "failed" ? "#dc2626" : "#64748b", fontSize: "12px", margin: 0 }}>
+                      {stage.message}
+                    </p>
                   )}
                   {stage.completed_at && (
                     <p style={{ color: "#94a3b8", fontSize: "11px", margin: "2px 0 0" }}>
-                      {new Date(stage.completed_at).toLocaleTimeString()}
+                      Completed at: {new Date(stage.completed_at).toLocaleTimeString()}
                     </p>
                   )}
                 </div>
@@ -207,11 +253,11 @@ export default function AnalysisProgressPage() {
       </section>
 
       {/* Done CTA */}
-      {done && (
+      {(done || progress === 100) && (
         <section className="panel p-6" style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.06))", border: "1px solid rgba(99,102,241,0.2)" }}>
           <h3 style={{ margin: "0 0 8px", color: "#6366f1" }}>🎉 Analysis Complete!</h3>
           <p style={{ color: "#64748b", fontSize: "14px", margin: "0 0 16px" }}>
-            All pipeline stages finished. Explore your results:
+            All pipeline stages finished successfully. All repository files have been indexed. Explore results:
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
             {[

@@ -27,8 +27,10 @@ class GraphService:
 
         query = """
         UNWIND $rows as row
+        MERGE (r:Repository {repository_id: $repository_id})
         MERGE (f:File {repository_id: $repository_id, path: row.file_path})
-        MERGE (s:Symbol {repository_id: $repository_id, name: row.symbol, kind: row.kind})
+        MERGE (r)-[:CONTAINS]->(f)
+        MERGE (s:Symbol {repository_id: $repository_id, name: row.symbol, kind: coalesce(row.kind, 'symbol')})
         MERGE (f)-[:DECLARES]->(s)
         """
         with self.driver.session() as session:
@@ -40,8 +42,11 @@ class GraphService:
 
         query = """
         UNWIND $edges as edge
+        MERGE (r:Repository {repository_id: $repository_id})
         MERGE (a:File {repository_id: $repository_id, path: edge.source})
         MERGE (b:File {repository_id: $repository_id, path: edge.target})
+        MERGE (r)-[:CONTAINS]->(a)
+        MERGE (r)-[:CONTAINS]->(b)
         MERGE (a)-[:DEPENDS_ON]->(b)
         """
         with self.driver.session() as session:

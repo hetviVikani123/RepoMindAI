@@ -113,11 +113,12 @@ export default function DashboardPage() {
         <h2 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "16px" }}>Quick Actions</h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "10px" }}>
           {[
+            { href: "/analysis-progress", icon: "📊", label: "Analysis Progress" },
             { href: "/architecture", icon: "🏗️", label: "Architecture" },
             { href: "/uml", icon: "📐", label: "UML Diagrams" },
             { href: "/dependency-graph", icon: "🔗", label: "Dependencies" },
             { href: "/ai-chat", icon: "🤖", label: "AI Chat" },
-            { href: "/reports", icon: "📊", label: "Reports" },
+            { href: "/reports", icon: "📋", label: "Reports" },
             { href: "/documentation", icon: "📄", label: "Documentation" },
           ].map(({ href, icon, label }) => (
             <a

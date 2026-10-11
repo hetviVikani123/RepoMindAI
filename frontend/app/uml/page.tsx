@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MermaidDiagram } from "@/components/MermaidDiagram";
 import { Shell } from "@/components/Shell";
@@ -31,6 +31,12 @@ export default function UMLPage() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (activeRepo) {
+      generate();
+    }
+  }, [activeRepo?.id]);
 
   if (!activeRepo) {
     return (

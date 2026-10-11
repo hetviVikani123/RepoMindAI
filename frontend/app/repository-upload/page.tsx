@@ -1,67 +1,91 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Shell } from "@/components/Shell";
-import { importRepository, repositoryStatus } from "@/lib/api";
+import { importRepository } from "@/lib/api";
 import { useRepo } from "@/lib/store";
 
 export default function RepositoryUploadPage() {
   const [url, setUrl] = useState("");
-  const [message, setMessage] = useState("No repository imported yet.");
+  const [loading, setLoading] = useState(false);
+  const [importedRepo, setImportedRepo] = useState<any | null>(null);
+  const [message, setMessage] = useState("Enter a GitHub repository URL or local folder path to begin analysis.");
   const { setActiveRepo } = useRepo();
+  const router = useRouter();
+
+  async function handleImport(e: React.FormEvent) {
+    e.preventDefault();
+    if (!url.trim()) return;
+    setLoading(true);
+    setMessage("Cloning repository and initializing analysis pipeline…");
+    try {
+      const data = await importRepository({ url: url.trim() });
+      setActiveRepo(data);
+      setImportedRepo(data);
+      setMessage(`Successfully imported #${data.id}: ${data.name} (${data.language} / ${data.framework}). Analysis pipeline has started!`);
+    } catch (error) {
+      setMessage(`Import failed: ${(error as Error).message}`);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
-    <Shell title="Repository Upload" subtitle="Clone and index any GitHub repository for analysis.">
-      <section className="panel p-5">
-        <form
-          className="space-y-3"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            try {
-              const data = await importRepository({ url });
-              setActiveRepo(data);
-              setMessage(`Imported #${data.id}: ${data.name} (${data.language}/${data.framework}) — indexing started`);
+    <Shell title="Repository Upload" subtitle="Clone and index any GitHub repository for complete analysis.">
+      <section className="panel p-6 space-y-4">
+        <form className="space-y-4" onSubmit={handleImport}>
+          <div>
+            <label className="block text-sm font-semibold mb-2">GitHub Repository URL or Local Path</label>
+            <input
+              className="w-full rounded-xl border p-3 bg-white"
+              placeholder="https://github.com/owner/repository"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              disabled={loading}
+              required
+            />
+            <p className="mt-1 text-xs text-slate-500">
+              Supports public repositories (e.g. <code>https://github.com/pallets/flask</code>) or local directories.
+            </p>
+          </div>
 
-              // Poll for indexing status
-              const repoId = data.id;
-              let attempts = 0;
-              const interval = setInterval(async () => {
-                attempts += 1;
-                try {
-                  const status = await repositoryStatus(repoId);
-                  if (status.indexed) {
-                    setMessage(`Imported #${data.id}: ${data.name} — indexing complete (${status.embeddings} embeddings)`);
-                    clearInterval(interval);
-                  } else {
-                    setMessage(`Imported #${data.id}: ${data.name} — indexing in progress (${status.embeddings} embeddings)`);
-                  }
-                } catch (err) {
-                  setMessage(`Imported #${data.id}: ${data.name} — indexing (status error)`);
-                  clearInterval(interval);
-                }
-                if (attempts > 30) {
-                  clearInterval(interval);
-                  setMessage(`Imported #${data.id}: ${data.name} — indexing taking longer than expected`);
-                }
-              }, 2000);
-            } catch (error) {
-              setMessage(`Import failed: ${(error as Error).message}`);
-            }
-          }}
-        >
-          <label className="block text-sm font-semibold">GitHub Repository URL</label>
-          <input
-            className="w-full rounded-xl border p-3"
-            placeholder="https://github.com/owner/repo"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-          />
-          <button className="rounded-xl bg-blue-800 px-5 py-2 font-medium text-white" type="submit">
-            Analyze Repository
+          <button
+            className="rounded-xl px-6 py-3 font-semibold text-white transition-all"
+            style={{
+              background: loading ? "#94a3b8" : "linear-gradient(135deg, #6366f1, #8b5cf6)",
+              cursor: loading ? "not-allowed" : "pointer",
+            }}
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? "Cloning & Indexing…" : "Analyze Repository →"}
           </button>
         </form>
       </section>
-      <section className="panel p-5 text-sm text-slate-700">{message}</section>
+
+      {/* Status & CTA Panel */}
+      <section className="panel p-6 space-y-3">
+        <p className="text-sm text-slate-700 m-0">{message}</p>
+
+        {importedRepo && (
+          <div className="pt-2 flex gap-3">
+            <button
+              onClick={() => router.push("/analysis-progress")}
+              className="rounded-xl px-5 py-2.5 font-semibold text-white text-sm"
+              style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)", cursor: "pointer" }}
+            >
+              📊 View Real-Time Analysis Progress →
+            </button>
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="rounded-xl border border-slate-300 px-5 py-2.5 font-semibold text-sm bg-white"
+            >
+              Go to Dashboard
+            </button>
+          </div>
+        )}
+      </section>
     </Shell>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Shell } from "@/components/Shell";
 import { useRepo } from "@/lib/store";
@@ -31,6 +31,12 @@ export default function ArchitecturePage() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (activeRepo) {
+      generate();
+    }
+  }, [activeRepo?.id]);
 
   if (!activeRepo) {
     return (

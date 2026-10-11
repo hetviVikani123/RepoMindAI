@@ -193,3 +193,48 @@ export async function deleteUser(userId: number) {
   }
   return response.json();
 }
+
+export async function triggerPipeline(repositoryId: number) {
+  const response = await fetch(`${API_BASE}/repository/${repositoryId}/analyze`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...getAuthHeader() },
+  });
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+  return response.json();
+}
+
+export async function fetchSettings() {
+  const response = await fetch(`${API_BASE}/settings`, {
+    headers: { ...getAuthHeader() },
+  });
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+  return response.json();
+}
+
+export async function updateSettings(payload: Record<string, any>) {
+  const response = await fetch(`${API_BASE}/settings`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...getAuthHeader() },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+  return response.json();
+}
+
+export async function testSettings() {
+  const response = await fetch(`${API_BASE}/settings/test`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...getAuthHeader() },
+  });
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+  return response.json();
+}
+

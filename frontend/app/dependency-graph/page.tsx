@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CytoscapeGraph } from "@/components/CytoscapeGraph";
 import { Shell } from "@/components/Shell";
@@ -31,6 +31,12 @@ export default function DependencyGraphPage() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (activeRepo) {
+      analyze();
+    }
+  }, [activeRepo?.id]);
 
   if (!activeRepo) {
     return (
@@ -112,6 +118,30 @@ export default function DependencyGraphPage() {
             </div>
           </div>
         )}
+
+        {/* Layer Color Legend */}
+        {elements.length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", padding: "10px 14px", background: "#f8fafc", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
+            {[
+              { label: "Entry", color: "#8b5cf6" },
+              { label: "API / Routes", color: "#3b82f6" },
+              { label: "Services", color: "#10b981" },
+              { label: "Models", color: "#f59e0b" },
+              { label: "UI / Views", color: "#ec4899" },
+              { label: "Config", color: "#64748b" },
+              { label: "Utilities", color: "#06b6d4" },
+              { label: "Tests", color: "#6366f1" },
+              { label: "Scripts", color: "#f97316" },
+              { label: "Data", color: "#14b8a6" },
+            ].map(({ label, color }) => (
+              <div key={label} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11px", color: "#475569" }}>
+                <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: color, display: "inline-block" }} />
+                <span>{label}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
 
         {/* Cytoscape graph */}
         {elements.length > 0 && (

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
 
 class RepositoryImportRequest(BaseModel):
@@ -18,8 +18,7 @@ class RepositoryResponse(BaseModel):
     build_system: str
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class RepositoryListResponse(BaseModel):
@@ -50,8 +49,7 @@ class PipelineStageResponse(BaseModel):
     started_at: datetime | None
     completed_at: datetime | None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PipelineStatusResponse(BaseModel):

@@ -55,17 +55,56 @@ def main():
     r = requests.get(f'{BASE}/repository/{repo_id}', headers=headers)
     ok(r)
 
+    print('GET /repository/{id}/pipeline-status')
+    r = requests.get(f'{BASE}/repository/{repo_id}/pipeline-status', headers=headers)
+    ok(r)
+
     print('GET /uml')
     r = requests.get(f'{BASE}/uml', params={'repository_id': repo_id}, headers=headers, timeout=30)
+    ok(r)
+
+    print('GET /architecture')
+    r = requests.get(f'{BASE}/architecture', params={'repository_id': repo_id}, headers=headers, timeout=30)
     ok(r)
 
     print('GET /dependencies')
     r = requests.get(f'{BASE}/dependencies', params={'repository_id': repo_id}, headers=headers, timeout=30)
     ok(r)
 
+    print('GET /technical-debt')
+    r = requests.get(f'{BASE}/technical-debt', params={'repository_id': repo_id}, headers=headers, timeout=30)
+    ok(r)
+
+    print('GET /documentation')
+    r = requests.get(f'{BASE}/documentation', params={'repository_id': repo_id}, headers=headers, timeout=30)
+    ok(r)
+
     print('POST /chat')
     r = requests.post(f'{BASE}/chat', json={'repository_id': repo_id, 'question': 'What is this repo about?'}, headers=headers, timeout=30)
     ok(r)
+
+    print('POST /auth/register admin user')
+    admin_email = f'admin_{int(time.time())}@example.com'
+    r = requests.post(f'{BASE}/auth/register', json={'email': admin_email, 'password': 'password123', 'role': 'admin'})
+    if r.status_code not in (200, 201):
+        print('admin register failed', r.status_code, r.text)
+
+    print('POST /auth/login admin user')
+    r = requests.post(f'{BASE}/auth/login', json={'email': admin_email, 'password': 'password123'})
+    if not ok(r):
+        sys.exit(1)
+    admin_token = r.json().get('access_token')
+    if not admin_token:
+        print('no admin token in response')
+        sys.exit(1)
+    admin_headers = {'Authorization': f'Bearer {admin_token}'}
+
+    print('GET /admin/stats')
+    ok(requests.get(f'{BASE}/admin/stats', headers=admin_headers, timeout=30))
+    print('GET /admin/users')
+    ok(requests.get(f'{BASE}/admin/users', headers=admin_headers, timeout=30))
+    print('GET /admin/logs')
+    ok(requests.get(f'{BASE}/admin/logs', params={'limit': 10}, headers=admin_headers, timeout=30))
 
     print('\nSMOKE TEST COMPLETE')
 

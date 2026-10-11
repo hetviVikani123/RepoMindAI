@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Shell } from "@/components/Shell";
 import { useRepo } from "@/lib/store";
@@ -82,6 +82,17 @@ export default function ReportsPage() {
     } catch (e) { setError((e as Error).message); }
     finally { setLoadingReport(false); }
   }
+
+  useEffect(() => {
+    if (!activeRepo) return;
+    if (tab === "debt" && !debt) {
+      loadDebt();
+    } else if (tab === "security" && !security) {
+      loadSecurity();
+    } else if (tab === "report" && !latestReport) {
+      loadReport();
+    }
+  }, [activeRepo?.id, tab]);
 
   if (!activeRepo) {
     return (

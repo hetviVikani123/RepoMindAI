@@ -1,44 +1,61 @@
 from __future__ import annotations
 
-from pathlib import Path
+from app.services.code_parser_service import CodeParserService
 
 
 class DependencyService:
     @staticmethod
     def generate_dependency_report(repo_path: str) -> dict:
-        base = Path(repo_path)
-        imports: dict[str, list[str]] = {}
-        circular: list[tuple[str, str]] = []
+        parsed = CodeParserService.parse_repository(repo_path)
+        files = parsed.get("files", [])
+        edges = parsed.get("dependencies", [])
+        external_deps = parsed.get("external_dependencies", [])
 
-        for file_path in base.rglob("*"):
-            if not file_path.is_file() or file_path.suffix.lower() not in {".py", ".js", ".ts", ".tsx"}:
+        imports: dict[str, list[str]] = {entry.get("file_path", ""): [] for entry in files if entry.get("file_path")}
+        adjacency: dict[str, set[str]] = {}
+
+        for edge in edges:
+            source = edge.get("source", "")
+            target = edge.get("target", "")
+            if not source or not target:
                 continue
+            imports.setdefault(source, []).append(target)
+            adjacency.setdefault(source, set()).add(target)
 
-            rel = str(file_path.relative_to(base)).replace("\\", "/")
-            text = file_path.read_text(encoding="utf-8", errors="ignore")
-            deps = []
-            for line in text.splitlines():
-                s = line.strip()
-                if s.startswith("import ") or s.startswith("from "):
-                    deps.append(s)
-            imports[rel] = deps
-
-        files = list(imports.keys())
-        for left in files:
-            left_name = left.split("/")[-1].split(".")[0]
-            for right in files:
-                if left == right:
-                    continue
-                right_name = right.split("/")[-1].split(".")[0]
-                left_refs_right = any(right_name in d for d in imports[left])
-                right_refs_left = any(left_name in d for d in imports[right])
-                if left_refs_right and right_refs_left:
-                    pair = tuple(sorted((left, right)))
-                    if pair not in circular:
-                        circular.append(pair)
+        circular = DependencyService._find_circular_dependencies(adjacency)
 
         return {
-            "imports": imports,
+            "imports": {key: sorted(set(value)) for key, value in imports.items()},
             "circular_dependencies": circular,
             "module_count": len(imports),
+            "external_dependencies": external_deps[:50],
         }
+
+    @staticmethod
+    def _find_circular_dependencies(adjacency: dict[str, set[str]]) -> list[tuple[str, str]]:
+        circular: list[tuple[str, str]] = []
+        seen: set[tuple[str, str]] = set()
+
+        def reaches(start: str, target: str) -> bool:
+            stack = list(adjacency.get(start, set()))
+            visited = {start}
+            while stack:
+                node = stack.pop()
+                if node == target:
+                    return True
+                if node in visited:
+                    continue
+                visited.add(node)
+                stack.extend(adjacency.get(node, set()))
+            return False
+
+        for source, targets in adjacency.items():
+            for target in targets:
+                pair = tuple(sorted((source, target)))
+                if pair in seen:
+                    continue
+                if reaches(target, source):
+                    circular.append(pair)
+                    seen.add(pair)
+
+        return circular
