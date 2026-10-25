@@ -35,3 +35,12 @@ Thumbs.db
 # Build files
 dist/
 build/
+
+# Local databases and workspace data
+*.db
+repomind.db
+backend/repomind.db
+workspace_repos/
+**/workspace_repos/
+*.zip
+clean/

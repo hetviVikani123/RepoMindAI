@@ -41,21 +41,14 @@ export default function ArchitecturePage() {
   if (!activeRepo) {
     return (
       <Shell title="Architecture" subtitle="High-level architecture generated from repository structure.">
-        <section className="panel p-8 text-center">
-          <p style={{ color: "#64748b", marginBottom: "16px" }}>
+        <section className="panel p-6 sm:p-10 text-center">
+          <div className="text-4xl mb-3">🏗️</div>
+          <p className="text-xs sm:text-sm text-slate-500 mb-4">
             No repository selected. Import one first.
           </p>
           <button
             onClick={() => router.push("/repository-upload")}
-            style={{
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              color: "#fff",
-              border: "none",
-              borderRadius: "10px",
-              padding: "10px 20px",
-              cursor: "pointer",
-              fontWeight: 600,
-            }}
+            className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-md hover:from-indigo-700 hover:to-purple-700 transition-all cursor-pointer"
           >
             Import Repository →
           </button>
@@ -69,34 +62,26 @@ export default function ArchitecturePage() {
       title="Architecture"
       subtitle={`High-level architecture for: ${activeRepo.name}`}
     >
-      <section className="panel p-6 space-y-4">
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <div>
-            <p style={{ margin: 0, fontSize: "14px", color: "#64748b" }}>
-              Analyzes the folder structure and file naming conventions to identify architectural layers.
-            </p>
-          </div>
+      <section className="panel p-4 sm:p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <p className="m-0 text-xs sm:text-sm text-slate-500 max-w-xl leading-relaxed">
+            Analyzes the folder structure and file naming conventions to identify architectural layers.
+          </p>
           <button
             onClick={generate}
             disabled={loading}
-            style={{
-              marginLeft: "auto",
-              background: loading ? "#94a3b8" : "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              color: "#fff",
-              border: "none",
-              borderRadius: "10px",
-              padding: "10px 20px",
-              fontWeight: 600,
-              cursor: loading ? "not-allowed" : "pointer",
-              whiteSpace: "nowrap",
-            }}
+            className={`w-full sm:w-auto rounded-xl px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all whitespace-nowrap ${
+              loading
+                ? "bg-slate-400 cursor-not-allowed"
+                : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 cursor-pointer"
+            }`}
           >
             {loading ? "Generating…" : "Generate Architecture"}
           </button>
         </div>
 
         {error && (
-          <div style={{ padding: "12px", borderRadius: "10px", background: "rgba(239,68,68,0.08)", color: "#dc2626", fontSize: "13px" }}>
+          <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-xs sm:text-sm text-red-600">
             {error}
           </div>
         )}
@@ -104,37 +89,32 @@ export default function ArchitecturePage() {
         {data && (
           <>
             {/* Mermaid diagram */}
-            <div>
-              <h3 style={{ fontSize: "14px", fontWeight: 700, marginBottom: "12px" }}>Architecture Diagram</h3>
-              <div style={{ border: "1px solid #e2e8f0", borderRadius: "12px", padding: "16px", background: "#fff" }}>
-                <MermaidDiagram chart={data.mermaid} />
-              </div>
+            <div className="space-y-2">
+              <h3 className="text-xs sm:text-sm font-bold text-slate-900">Architecture Diagram</h3>
+              <MermaidDiagram chart={data.mermaid} />
             </div>
 
             {/* Layers */}
-            <div>
-              <h3 style={{ fontSize: "14px", fontWeight: 700, marginBottom: "12px" }}>Detected Layers</h3>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "10px" }}>
+            <div className="space-y-2">
+              <h3 className="text-xs sm:text-sm font-bold text-slate-900">Detected Layers</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {Object.entries(data.layers)
                   .filter(([, files]) => files.length > 0)
                   .map(([layer, files]) => (
                     <div
                       key={layer}
-                      style={{
-                        border: "1px solid #e2e8f0",
-                        borderRadius: "10px",
-                        padding: "12px",
-                        background: "#f8fafc",
-                      }}
+                      className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 sm:p-3.5 shadow-2xs"
                     >
-                      <p style={{ fontWeight: 700, fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.08em", color: "#6366f1", margin: "0 0 8px" }}>
+                      <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-indigo-600 mb-2">
                         {layer}
                       </p>
-                      {files.map((f) => (
-                        <p key={f} style={{ fontSize: "11px", color: "#374151", margin: "2px 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                          📄 {f}
-                        </p>
-                      ))}
+                      <div className="space-y-1">
+                        {files.map((f) => (
+                          <p key={f} className="text-xs text-slate-700 m-0 truncate" title={f}>
+                            📄 {f}
+                          </p>
+                        ))}
+                      </div>
                     </div>
                   ))}
               </div>
@@ -142,28 +122,17 @@ export default function ArchitecturePage() {
 
             {/* Folder structure */}
             {data.folder_structure.length > 0 && (
-              <div>
-                <h3 style={{ fontSize: "14px", fontWeight: 700, marginBottom: "12px" }}>
+              <div className="space-y-2">
+                <h3 className="text-xs sm:text-sm font-bold text-slate-900">
                   Folder Structure ({data.folder_structure.length} directories)
                 </h3>
-                <div
-                  style={{
-                    background: "#0f172a",
-                    borderRadius: "12px",
-                    padding: "16px",
-                    maxHeight: "300px",
-                    overflowY: "auto",
-                    fontFamily: "monospace",
-                    fontSize: "12px",
-                    color: "#94a3b8",
-                  }}
-                >
+                <div className="rounded-xl bg-slate-950 p-3.5 sm:p-4 max-h-[300px] overflow-y-auto overflow-x-auto font-mono text-xs text-slate-400">
                   {data.folder_structure.map((folder) => {
                     const depth = folder.split("/").length - 1;
                     return (
-                      <div key={folder} style={{ paddingLeft: `${depth * 14}px`, lineHeight: "1.8" }}>
-                        <span style={{ color: "#6366f1" }}>📁</span>{" "}
-                        <span style={{ color: "#e2e8f0" }}>{folder.split("/").pop()}</span>
+                      <div key={folder} style={{ paddingLeft: `${depth * 14}px` }} className="leading-relaxed whitespace-nowrap">
+                        <span className="text-indigo-400">📁</span>{" "}
+                        <span className="text-slate-200">{folder.split("/").pop()}</span>
                       </div>
                     );
                   })}

@@ -80,21 +80,14 @@ export default function AnalysisProgressPage() {
   if (!activeRepo) {
     return (
       <Shell title="Analysis Progress" subtitle="Track end-to-end AI pipeline stages.">
-        <section className="panel p-8 text-center">
-          <p style={{ color: "#64748b", marginBottom: "16px" }}>
+        <section className="panel p-6 sm:p-10 text-center">
+          <div className="text-4xl mb-3">📊</div>
+          <p className="text-xs sm:text-sm text-slate-500 mb-4">
             No repository selected. Import one to see analysis progress.
           </p>
           <button
             onClick={() => router.push("/repository-upload")}
-            style={{
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              color: "#fff",
-              border: "none",
-              borderRadius: "10px",
-              padding: "10px 20px",
-              cursor: "pointer",
-              fontWeight: 600,
-            }}
+            className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-md hover:from-indigo-700 hover:to-purple-700 transition-all cursor-pointer"
           >
             Import Repository →
           </button>
@@ -110,139 +103,118 @@ export default function AnalysisProgressPage() {
   return (
     <Shell title="Analysis Progress" subtitle={`Pipeline stages for: ${activeRepo.name}`}>
       {/* Header action panel */}
-      <section className="panel p-6">
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+      <section className="panel p-4 sm:p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h2 style={{ margin: 0, fontSize: "16px", fontWeight: 700 }}>End-to-End Analysis Pipeline</h2>
-            <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "13px" }}>
+            <h2 className="text-sm sm:text-base font-bold text-slate-900">End-to-End Analysis Pipeline</h2>
+            <p className="mt-0.5 text-xs text-slate-500">
               Cloner → Language Detector → AST Parser → Embeddings → Knowledge Graph → Static Analysis → RAG Index
             </p>
           </div>
           <button
             onClick={handleTrigger}
             disabled={triggering || hasRunning}
-            style={{
-              background: triggering || hasRunning ? "#94a3b8" : "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              color: "#fff",
-              border: "none",
-              borderRadius: "10px",
-              padding: "10px 20px",
-              fontWeight: 600,
-              fontSize: "13px",
-              cursor: triggering || hasRunning ? "not-allowed" : "pointer",
-            }}
+            className={`w-full sm:w-auto rounded-xl px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all ${
+              triggering || hasRunning
+                ? "bg-slate-400 cursor-not-allowed"
+                : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 cursor-pointer"
+            }`}
           >
             {hasRunning ? "⚙️ Pipeline Running…" : triggering ? "Starting…" : done ? "🔄 Re-run Full Pipeline" : "▶ Start Analysis Pipeline"}
           </button>
         </div>
 
         {/* Progress bar */}
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-          <span style={{ fontWeight: 600, fontSize: "14px" }}>Overall Progress</span>
-          <span style={{ fontWeight: 700, fontSize: "14px", color: "#6366f1" }}>{progress}%</span>
-        </div>
-        <div style={{ background: "#e2e8f0", borderRadius: "100px", height: "10px", overflow: "hidden" }}>
-          <div
-            style={{
-              height: "100%",
-              width: `${progress}%`,
-              background: "linear-gradient(90deg, #6366f1, #8b5cf6)",
-              borderRadius: "100px",
-              transition: "width 0.4s ease",
-            }}
-          />
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px" }}>
-          <span style={{ color: "#64748b", fontSize: "12px" }}>
-            {completedCount} / {stages.length} stages complete
-          </span>
-          <span style={{ color: "#64748b", fontSize: "12px" }}>
-            {embeddings} embeddings indexed
-          </span>
+        <div className="space-y-1.5">
+          <div className="flex justify-between items-center text-xs sm:text-sm">
+            <span className="font-semibold text-slate-800">Overall Progress</span>
+            <span className="font-bold text-indigo-600">{progress}%</span>
+          </div>
+          <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100 border border-slate-200">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-500 ease-out"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <div className="flex flex-col sm:flex-row sm:justify-between gap-1 text-[11px] sm:text-xs text-slate-500 pt-0.5">
+            <span>{completedCount} of {stages.length} stages complete</span>
+            <span>{embeddings.toLocaleString()} embeddings indexed</span>
+          </div>
         </div>
       </section>
 
       {/* Stage list */}
-      <section className="panel p-6 space-y-3">
+      <section className="panel p-3.5 sm:p-6 space-y-2.5 sm:space-y-3">
         {loading && stages.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
+          <div className="text-center py-10 text-xs sm:text-sm text-slate-500">
             Loading pipeline status…
           </div>
         ) : stages.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
+          <div className="text-center py-10 text-xs sm:text-sm text-slate-500">
             Pipeline not yet started. Click <strong>Start Analysis Pipeline</strong> to begin.
           </div>
         ) : (
           stages.map((stage, idx) => {
             const style = STATUS_STYLES[stage.status] ?? STATUS_STYLES.pending;
+            const isRunning = stage.status === "running";
             return (
               <div
                 key={stage.stage_name}
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: "14px",
-                  padding: "14px 16px",
-                  borderRadius: "12px",
-                  border: `1px solid ${stage.status === "running" ? "#f59e0b" : "#e2e8f0"}`,
-                  background: stage.status === "running" ? "#fffbeb" : "#fff",
-                  boxShadow: stage.status === "running" ? "0 4px 12px rgba(245,158,11,0.12)" : "none",
-                  transition: "all 0.2s ease",
-                }}
+                className={`flex items-start gap-3 p-3 sm:p-4 rounded-xl border transition-all ${
+                  isRunning
+                    ? "border-amber-300 bg-amber-50/40 shadow-xs"
+                    : "border-slate-200 bg-white"
+                }`}
               >
-                {/* Step number + dot */}
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", minWidth: "28px" }}>
+                {/* Step number badge */}
+                <div className="flex flex-col items-center gap-1 shrink-0 pt-0.5">
                   <div
+                    className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold"
                     style={{
-                      width: "28px",
-                      height: "28px",
-                      borderRadius: "50%",
                       background: style.bg,
                       border: `2px solid ${style.dot}`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "12px",
-                      fontWeight: 700,
                       color: style.text,
                     }}
                   >
                     {stage.status === "completed" ? "✓" : stage.status === "failed" ? "✗" : idx + 1}
                   </div>
                   {idx < stages.length - 1 && (
-                    <div style={{ width: "2px", height: "16px", background: "#e2e8f0" }} />
+                    <div className="h-4 w-0.5 bg-slate-200" />
                   )}
                 </div>
 
                 {/* Content */}
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "2px" }}>
-                    <span style={{ fontWeight: 600, fontSize: "14px" }}>{stage.stage_name}</span>
-                    {stage.status === "running" && (
-                      <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", background: "#f59e0b", animation: "pulse 1s infinite" }} />
-                    )}
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs sm:text-sm font-semibold text-slate-900 truncate">
+                        {stage.stage_name}
+                      </span>
+                      {isRunning && (
+                        <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+                      )}
+                    </div>
                     <span
-                      style={{
-                        background: style.bg,
-                        color: style.text,
-                        borderRadius: "6px",
-                        padding: "2px 8px",
-                        fontSize: "11px",
-                        fontWeight: 600,
-                        marginLeft: "auto",
-                      }}
+                      className="rounded-md px-2 py-0.5 text-[10px] sm:text-xs font-semibold shrink-0"
+                      style={{ background: style.bg, color: style.text }}
                     >
                       {style.label}
                     </span>
                   </div>
+
                   {stage.message && (
-                    <p style={{ color: stage.status === "failed" ? "#dc2626" : "#64748b", fontSize: "12px", margin: 0 }}>
+                    <p
+                      className={`text-[11px] sm:text-xs leading-relaxed m-0 break-words ${
+                        stage.status === "failed" ? "text-red-600" : "text-slate-600"
+                      }`}
+                    >
                       {stage.message}
                     </p>
                   )}
+
                   {stage.completed_at && (
-                    <p style={{ color: "#94a3b8", fontSize: "11px", margin: "2px 0 0" }}>
-                      Completed at: {new Date(stage.completed_at).toLocaleTimeString()}
+                    <p className="mt-1 text-[10px] text-slate-400">
+                      Completed: {new Date(stage.completed_at).toLocaleTimeString()}
                     </p>
                   )}
                 </div>
@@ -254,12 +226,12 @@ export default function AnalysisProgressPage() {
 
       {/* Done CTA */}
       {(done || progress === 100) && (
-        <section className="panel p-6" style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.06))", border: "1px solid rgba(99,102,241,0.2)" }}>
-          <h3 style={{ margin: "0 0 8px", color: "#6366f1" }}>🎉 Analysis Complete!</h3>
-          <p style={{ color: "#64748b", fontSize: "14px", margin: "0 0 16px" }}>
+        <section className="panel p-4 sm:p-6 bg-gradient-to-br from-indigo-50/70 to-purple-50/40 border border-indigo-100">
+          <h3 className="text-sm sm:text-base font-bold text-indigo-900 mb-1">🎉 Analysis Complete!</h3>
+          <p className="text-xs sm:text-sm text-slate-600 mb-4 leading-relaxed">
             All pipeline stages finished successfully. All repository files have been indexed. Explore results:
           </p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+          <div className="flex flex-wrap gap-2">
             {[
               { href: "/architecture", label: "Architecture" },
               { href: "/uml", label: "UML Diagrams" },
@@ -271,15 +243,7 @@ export default function AnalysisProgressPage() {
               <a
                 key={href}
                 href={href}
-                style={{
-                  background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-                  color: "#fff",
-                  borderRadius: "10px",
-                  padding: "8px 16px",
-                  fontSize: "13px",
-                  fontWeight: 600,
-                  textDecoration: "none",
-                }}
+                className="rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-3.5 py-2 text-xs font-semibold text-white shadow-2xs hover:from-indigo-700 hover:to-purple-700 transition-all"
               >
                 {label}
               </a>

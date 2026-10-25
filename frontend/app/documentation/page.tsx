@@ -41,11 +41,12 @@ export default function DocumentationPage() {
   if (!activeRepo) {
     return (
       <Shell title="Documentation" subtitle="Auto-generated README, architecture, and module docs.">
-        <section className="panel p-8 text-center">
-          <p style={{ color: "#64748b", marginBottom: "16px" }}>No repository selected. Import one first.</p>
+        <section className="panel p-6 sm:p-10 text-center">
+          <div className="text-4xl mb-3">📄</div>
+          <p className="text-xs sm:text-sm text-slate-500 mb-4">No repository selected. Import one first.</p>
           <button
             onClick={() => router.push("/repository-upload")}
-            style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", border: "none", borderRadius: "10px", padding: "10px 20px", cursor: "pointer", fontWeight: 600 }}
+            className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-md hover:from-indigo-700 hover:to-purple-700 transition-all cursor-pointer"
           >
             Import Repository →
           </button>
@@ -56,31 +57,26 @@ export default function DocumentationPage() {
 
   return (
     <Shell title="Documentation" subtitle={`Generated docs for: ${activeRepo.name}`}>
-      <section className="panel p-6 space-y-4">
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
-          <p style={{ margin: 0, fontSize: "14px", color: "#64748b" }}>
+      <section className="panel p-4 sm:p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <p className="m-0 text-xs sm:text-sm text-slate-500 max-w-xl leading-relaxed">
             Generate README, architecture notes, module summaries, and API summaries from the imported repository.
           </p>
           <button
             onClick={generate}
             disabled={loading}
-            style={{
-              background: loading ? "#94a3b8" : "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              color: "#fff",
-              border: "none",
-              borderRadius: "10px",
-              padding: "10px 20px",
-              fontWeight: 600,
-              cursor: loading ? "not-allowed" : "pointer",
-              whiteSpace: "nowrap",
-            }}
+            className={`w-full sm:w-auto rounded-xl px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all whitespace-nowrap ${
+              loading
+                ? "bg-slate-400 cursor-not-allowed"
+                : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 cursor-pointer"
+            }`}
           >
             {loading ? "Generating…" : "Generate Documentation"}
           </button>
         </div>
 
         {error && (
-          <div style={{ padding: "12px", borderRadius: "10px", background: "rgba(239,68,68,0.08)", color: "#dc2626", fontSize: "13px" }}>
+          <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-xs sm:text-sm text-red-600">
             {error}
           </div>
         )}
@@ -88,29 +84,42 @@ export default function DocumentationPage() {
 
       {doc && (
         <>
-          <section className="panel p-6 space-y-3">
-            <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700 }}>README</h3>
-            <pre style={{ whiteSpace: "pre-wrap", background: "#0f172a", color: "#e2e8f0", padding: "16px", borderRadius: "12px", overflowX: "auto" }}>{doc.readme}</pre>
+          <section className="panel p-4 sm:p-6 space-y-3">
+            <h3 className="m-0 text-sm sm:text-base font-bold text-slate-900">README.md</h3>
+            <pre className="whitespace-pre-wrap break-words rounded-xl bg-slate-950 text-slate-200 p-3.5 sm:p-5 font-mono text-xs sm:text-sm overflow-x-auto leading-relaxed max-w-full">
+              {doc.readme}
+            </pre>
           </section>
 
-          <section className="panel p-6 space-y-3">
-            <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700 }}>Architecture Documentation</h3>
-            <pre style={{ whiteSpace: "pre-wrap", background: "#0f172a", color: "#e2e8f0", padding: "16px", borderRadius: "12px", overflowX: "auto" }}>{doc.architecture_doc}</pre>
+          <section className="panel p-4 sm:p-6 space-y-3">
+            <h3 className="m-0 text-sm sm:text-base font-bold text-slate-900">Architecture Documentation</h3>
+            <pre className="whitespace-pre-wrap break-words rounded-xl bg-slate-950 text-slate-200 p-3.5 sm:p-5 font-mono text-xs sm:text-sm overflow-x-auto leading-relaxed max-w-full">
+              {doc.architecture_doc}
+            </pre>
           </section>
 
-          <section className="panel p-6 space-y-3">
-            <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700 }}>API Summary</h3>
-            <pre style={{ whiteSpace: "pre-wrap", background: "#0f172a", color: "#e2e8f0", padding: "16px", borderRadius: "12px", overflowX: "auto" }}>{doc.api_summary}</pre>
+          <section className="panel p-4 sm:p-6 space-y-3">
+            <h3 className="m-0 text-sm sm:text-base font-bold text-slate-900">API Summary</h3>
+            <pre className="whitespace-pre-wrap break-words rounded-xl bg-slate-950 text-slate-200 p-3.5 sm:p-5 font-mono text-xs sm:text-sm overflow-x-auto leading-relaxed max-w-full">
+              {doc.api_summary}
+            </pre>
           </section>
 
           {Object.keys(doc.module_docs).length > 0 && (
-            <section className="panel p-6 space-y-4">
-              <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700 }}>Module Docs</h3>
-              <div className="grid gap-3 md:grid-cols-2">
+            <section className="panel p-4 sm:p-6 space-y-3">
+              <h3 className="m-0 text-sm sm:text-base font-bold text-slate-900">Module Documentation</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {Object.entries(doc.module_docs).map(([moduleName, content]) => (
-                  <article key={moduleName} style={{ border: "1px solid #e2e8f0", borderRadius: "12px", padding: "14px", background: "#fff" }}>
-                    <h4 style={{ margin: "0 0 8px", fontSize: "14px", fontWeight: 700 }}>{moduleName}</h4>
-                    <pre style={{ whiteSpace: "pre-wrap", margin: 0, fontSize: "12px", lineHeight: 1.6 }}>{content}</pre>
+                  <article
+                    key={moduleName}
+                    className="rounded-xl border border-slate-200 bg-white p-3.5 sm:p-4 shadow-2xs space-y-2"
+                  >
+                    <h4 className="m-0 text-xs sm:text-sm font-bold text-indigo-600 truncate">
+                      {moduleName}
+                    </h4>
+                    <pre className="whitespace-pre-wrap break-words m-0 font-mono text-[11px] sm:text-xs leading-relaxed text-slate-700 overflow-x-auto">
+                      {content}
+                    </pre>
                   </article>
                 ))}
               </div>

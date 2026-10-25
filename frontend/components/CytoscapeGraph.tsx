@@ -127,40 +127,41 @@ export function CytoscapeGraph({ elements }: { elements: ElementShape[] }) {
   }, [elements]);
 
   return (
-    <div style={{ position: "relative" }}>
+    <div className="relative w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
       <div
-        className="w-full rounded-xl bg-slate-50"
-        style={{ height: "560px", border: "1px solid #e2e8f0" }}
+        className="w-full h-[360px] sm:h-[480px] md:h-[560px]"
         ref={containerRef}
       />
+
+      {/* Touch tip */}
+      <div className="absolute top-2 left-2 pointer-events-none rounded-md bg-white/80 px-2 py-1 text-[10px] text-slate-500 backdrop-blur-sm sm:text-xs">
+        Tap node to inspect · Pinch/drag to explore
+      </div>
+
       {selectedNode && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: "16px",
-            right: "16px",
-            background: "rgba(255, 255, 255, 0.95)",
-            backdropFilter: "blur(8px)",
-            border: "1px solid #cbd5e1",
-            borderRadius: "12px",
-            padding: "12px 16px",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-            maxWidth: "320px",
-            fontSize: "12px",
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
-            <strong style={{ fontSize: "14px", color: "#0f172a" }}>{selectedNode.label}</strong>
-            <span style={{ fontSize: "10px", textTransform: "uppercase", fontWeight: 700, color: "#6366f1", background: "#ede9fe", padding: "2px 6px", borderRadius: "4px" }}>
-              {selectedNode.layer}
-            </span>
+        <div className="absolute bottom-2 left-2 right-2 sm:left-auto sm:right-3 sm:bottom-3 sm:max-w-xs z-10 rounded-xl border border-slate-200 bg-white/95 p-3.5 shadow-xl backdrop-blur-md text-xs transition-all">
+          <div className="flex items-center justify-between gap-2 mb-1.5">
+            <strong className="text-sm text-slate-900 truncate">{selectedNode.label}</strong>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="rounded bg-indigo-50 px-1.5 py-0.5 text-[10px] font-bold uppercase text-indigo-600">
+                {selectedNode.layer}
+              </span>
+              <button
+                type="button"
+                onClick={() => setSelectedNode(null)}
+                className="flex h-5 w-5 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
           </div>
-          <p style={{ margin: "2px 0", color: "#64748b", fontFamily: "monospace", fontSize: "11px", wordBreak: "break-all" }}>
+          <p className="my-1 font-mono text-[11px] text-slate-600 break-all leading-tight">
             {selectedNode.path}
           </p>
-          <div style={{ display: "flex", gap: "12px", marginTop: "6px", color: "#475569" }}>
-            <span>Language: <strong>{selectedNode.language}</strong></span>
-            <span>Lines: <strong>{selectedNode.lines}</strong></span>
+          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-slate-600 text-[11px]">
+            <span>Lang: <strong className="text-slate-800">{selectedNode.language}</strong></span>
+            <span>Lines: <strong className="text-slate-800">{selectedNode.lines}</strong></span>
           </div>
         </div>
       )}

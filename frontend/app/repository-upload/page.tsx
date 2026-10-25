@@ -33,29 +33,31 @@ export default function RepositoryUploadPage() {
 
   return (
     <Shell title="Repository Upload" subtitle="Clone and index any GitHub repository for complete analysis.">
-      <section className="panel p-6 space-y-4">
+      <section className="panel p-4 sm:p-6 space-y-4">
         <form className="space-y-4" onSubmit={handleImport}>
           <div>
-            <label className="block text-sm font-semibold mb-2">GitHub Repository URL or Local Path</label>
+            <label className="block text-xs sm:text-sm font-semibold text-slate-900 mb-2">
+              GitHub Repository URL or Local Path
+            </label>
             <input
-              className="w-full rounded-xl border p-3 bg-white"
+              className="w-full rounded-xl border border-slate-200 bg-white p-2.5 sm:p-3 text-xs sm:text-sm focus:border-indigo-500 focus:outline-hidden transition-all"
               placeholder="https://github.com/owner/repository"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               disabled={loading}
               required
             />
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-[11px] sm:text-xs text-slate-500">
               Supports public repositories (e.g. <code>https://github.com/pallets/flask</code>) or local directories.
             </p>
           </div>
 
           <button
-            className="rounded-xl px-6 py-3 font-semibold text-white transition-all"
-            style={{
-              background: loading ? "#94a3b8" : "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              cursor: loading ? "not-allowed" : "pointer",
-            }}
+            className={`w-full sm:w-auto rounded-xl px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all ${
+              loading
+                ? "bg-slate-400 cursor-not-allowed"
+                : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 cursor-pointer"
+            }`}
             type="submit"
             disabled={loading}
           >
@@ -65,21 +67,20 @@ export default function RepositoryUploadPage() {
       </section>
 
       {/* Status & CTA Panel */}
-      <section className="panel p-6 space-y-3">
-        <p className="text-sm text-slate-700 m-0">{message}</p>
+      <section className="panel p-4 sm:p-6 space-y-3">
+        <p className="text-xs sm:text-sm text-slate-700 m-0 leading-relaxed">{message}</p>
 
         {importedRepo && (
-          <div className="pt-2 flex gap-3">
+          <div className="pt-2 flex flex-col sm:flex-row gap-2.5 sm:gap-3">
             <button
               onClick={() => router.push("/analysis-progress")}
-              className="rounded-xl px-5 py-2.5 font-semibold text-white text-sm"
-              style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)", cursor: "pointer" }}
+              className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm hover:from-indigo-700 hover:to-purple-700 transition-all cursor-pointer"
             >
               📊 View Real-Time Analysis Progress →
             </button>
             <button
               onClick={() => router.push("/dashboard")}
-              className="rounded-xl border border-slate-300 px-5 py-2.5 font-semibold text-sm bg-white"
+              className="w-full sm:w-auto rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 transition-all cursor-pointer"
             >
               Go to Dashboard
             </button>

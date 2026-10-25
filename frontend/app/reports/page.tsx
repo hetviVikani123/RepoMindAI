@@ -97,11 +97,12 @@ export default function ReportsPage() {
   if (!activeRepo) {
     return (
       <Shell title="Reports" subtitle="Technical debt, security findings, and analysis snapshots.">
-        <section className="panel p-8 text-center">
-          <p style={{ color: "#64748b", marginBottom: "16px" }}>No repository selected.</p>
+        <section className="panel p-6 sm:p-10 text-center">
+          <div className="text-4xl mb-3">📋</div>
+          <p className="text-xs sm:text-sm text-slate-500 mb-4">No repository selected.</p>
           <button
             onClick={() => router.push("/repository-upload")}
-            style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", border: "none", borderRadius: "10px", padding: "10px 20px", cursor: "pointer", fontWeight: 600 }}
+            className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-md hover:from-indigo-700 hover:to-purple-700 transition-all cursor-pointer"
           >
             Import Repository →
           </button>
@@ -113,7 +114,7 @@ export default function ReportsPage() {
   return (
     <Shell title="Reports" subtitle={`Analysis reports for: ${activeRepo.name}`}>
       {/* Tabs */}
-      <section className="panel p-2" style={{ display: "flex", gap: "4px" }}>
+      <section className="panel p-1.5 sm:p-2 flex overflow-x-auto no-scrollbar gap-1 bg-white">
         {([
           { id: "debt" as const, label: "🔧 Technical Debt" },
           { id: "security" as const, label: "🔒 Security" },
@@ -122,17 +123,11 @@ export default function ReportsPage() {
           <button
             key={id}
             onClick={() => setTab(id)}
-            style={{
-              padding: "10px 18px",
-              borderRadius: "10px",
-              border: "none",
-              fontWeight: 600,
-              fontSize: "13px",
-              cursor: "pointer",
-              background: tab === id ? "linear-gradient(135deg, #6366f1, #8b5cf6)" : "transparent",
-              color: tab === id ? "#fff" : "#64748b",
-              transition: "all 0.15s",
-            }}
+            className={`shrink-0 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+              tab === id
+                ? "bg-slate-900 text-white shadow-xs"
+                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            }`}
           >
             {label}
           </button>
@@ -140,20 +135,24 @@ export default function ReportsPage() {
       </section>
 
       {error && (
-        <div style={{ padding: "12px", borderRadius: "10px", background: "rgba(239,68,68,0.08)", color: "#dc2626", fontSize: "13px" }} className="panel">
+        <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-xs sm:text-sm text-red-600">
           {error}
         </div>
       )}
 
       {/* Technical Debt Tab */}
       {tab === "debt" && (
-        <section className="panel p-6 space-y-4">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h2 style={{ margin: 0, fontSize: "16px", fontWeight: 700 }}>Technical Debt Analysis</h2>
+        <section className="panel p-4 sm:p-6 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <h2 className="text-sm sm:text-base font-bold text-slate-900">Technical Debt Analysis</h2>
             <button
               onClick={loadDebt}
               disabled={loadingDebt}
-              style={{ background: loadingDebt ? "#94a3b8" : "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", border: "none", borderRadius: "10px", padding: "10px 18px", fontWeight: 600, cursor: loadingDebt ? "not-allowed" : "pointer" }}
+              className={`w-full sm:w-auto rounded-xl px-5 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all ${
+                loadingDebt
+                  ? "bg-slate-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 cursor-pointer"
+              }`}
             >
               {loadingDebt ? "Analyzing…" : "Run Analysis"}
             </button>
@@ -162,34 +161,67 @@ export default function ReportsPage() {
           {debt && (
             <>
               {/* Score cards */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "12px" }}>
-                <div style={{ padding: "20px", borderRadius: "16px", border: "1px solid #e2e8f0", textAlign: "center", background: "#fff" }}>
-                  <p style={{ fontSize: "36px", fontWeight: 700, color: debt.debt_score > 60 ? "#dc2626" : debt.debt_score > 30 ? "#d97706" : "#16a34a", margin: 0 }}>{debt.debt_score}</p>
-                  <p style={{ fontSize: "11px", color: "#64748b", margin: "4px 0 0", textTransform: "uppercase" }}>Debt Score</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                <div className="rounded-xl border border-slate-200 bg-white p-3.5 sm:p-4 text-center shadow-2xs">
+                  <p
+                    className="text-2xl sm:text-3xl font-bold truncate"
+                    style={{ color: debt.debt_score > 60 ? "#dc2626" : debt.debt_score > 30 ? "#d97706" : "#16a34a" }}
+                  >
+                    {debt.debt_score}
+                  </p>
+                  <p className="mt-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Debt Score
+                  </p>
                 </div>
-                <div style={{ padding: "20px", borderRadius: "16px", border: "1px solid #e2e8f0", textAlign: "center", background: "#fff" }}>
-                  <p style={{ fontSize: "36px", fontWeight: 700, color: "#6366f1", margin: 0 }}>{debt.maintainability}%</p>
-                  <p style={{ fontSize: "11px", color: "#64748b", margin: "4px 0 0", textTransform: "uppercase" }}>Maintainability</p>
+
+                <div className="rounded-xl border border-slate-200 bg-white p-3.5 sm:p-4 text-center shadow-2xs">
+                  <p className="text-2xl sm:text-3xl font-bold text-indigo-600 truncate">
+                    {debt.maintainability}%
+                  </p>
+                  <p className="mt-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Maintainability
+                  </p>
                 </div>
+
                 {debt.grade && (
-                  <div style={{ padding: "20px", borderRadius: "16px", border: "1px solid #e2e8f0", textAlign: "center", background: GRADE_COLORS[debt.grade]?.bg ?? "#fff" }}>
-                    <p style={{ fontSize: "48px", fontWeight: 700, color: GRADE_COLORS[debt.grade]?.text ?? "#0f172a", margin: 0 }}>{debt.grade}</p>
-                    <p style={{ fontSize: "11px", color: "#64748b", margin: "4px 0 0", textTransform: "uppercase" }}>Grade</p>
+                  <div
+                    className="rounded-xl border border-slate-200 p-3.5 sm:p-4 text-center shadow-2xs"
+                    style={{ background: GRADE_COLORS[debt.grade]?.bg ?? "#fff" }}
+                  >
+                    <p
+                      className="text-2xl sm:text-3xl font-bold"
+                      style={{ color: GRADE_COLORS[debt.grade]?.text ?? "#0f172a" }}
+                    >
+                      {debt.grade}
+                    </p>
+                    <p className="mt-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      Grade
+                    </p>
                   </div>
                 )}
-                <div style={{ padding: "20px", borderRadius: "16px", border: "1px solid #e2e8f0", textAlign: "center", background: "#fff" }}>
-                  <p style={{ fontSize: "28px", fontWeight: 700, color: "#374151", margin: 0 }}>{debt.evidence.total_lines.toLocaleString()}</p>
-                  <p style={{ fontSize: "11px", color: "#64748b", margin: "4px 0 0", textTransform: "uppercase" }}>Total Lines</p>
+
+                <div className="rounded-xl border border-slate-200 bg-white p-3.5 sm:p-4 text-center shadow-2xs">
+                  <p className="text-2xl sm:text-3xl font-bold text-slate-800 truncate">
+                    {debt.evidence.total_lines.toLocaleString()}
+                  </p>
+                  <p className="mt-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Total Lines
+                  </p>
                 </div>
               </div>
 
               {/* Evidence */}
               {debt.evidence.long_files.length > 0 && (
-                <div>
-                  <h3 style={{ fontSize: "14px", fontWeight: 700, margin: "0 0 10px" }}>Large Files (&gt;400 lines)</h3>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                <div className="space-y-2">
+                  <h3 className="text-xs sm:text-sm font-bold text-slate-900">
+                    Large Files (&gt;400 lines)
+                  </h3>
+                  <div className="flex flex-col gap-1.5">
                     {debt.evidence.long_files.map((f) => (
-                      <div key={f} style={{ padding: "8px 12px", borderRadius: "8px", background: "#fff7ed", border: "1px solid #fed7aa", fontSize: "12px", fontFamily: "monospace", color: "#9a3412" }}>
+                      <div
+                        key={f}
+                        className="rounded-lg border border-orange-200 bg-orange-50/70 p-2.5 font-mono text-[11px] sm:text-xs text-orange-950 break-all"
+                      >
                         ⚠️ {f}
                       </div>
                     ))}
@@ -198,9 +230,9 @@ export default function ReportsPage() {
               )}
 
               {debt.evidence.duplicate_line_candidates > 0 && (
-                <div style={{ padding: "12px 16px", borderRadius: "10px", background: "#fef9c3", border: "1px solid #fde047" }}>
-                  <p style={{ margin: 0, fontSize: "13px", color: "#713f12" }}>
-                    <strong>{debt.evidence.duplicate_line_candidates}</strong> potential duplicate lines detected
+                <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-3 sm:p-4">
+                  <p className="m-0 text-xs sm:text-sm text-amber-900 leading-relaxed">
+                    <strong>{debt.evidence.duplicate_line_candidates}</strong> potential duplicate lines detected across repository.
                   </p>
                 </div>
               )}
@@ -211,13 +243,17 @@ export default function ReportsPage() {
 
       {/* Security Tab */}
       {tab === "security" && (
-        <section className="panel p-6 space-y-4">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h2 style={{ margin: 0, fontSize: "16px", fontWeight: 700 }}>Security Analysis</h2>
+        <section className="panel p-4 sm:p-6 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <h2 className="text-sm sm:text-base font-bold text-slate-900">Security Analysis</h2>
             <button
               onClick={loadSecurity}
               disabled={loadingSec}
-              style={{ background: loadingSec ? "#94a3b8" : "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", border: "none", borderRadius: "10px", padding: "10px 18px", fontWeight: 600, cursor: loadingSec ? "not-allowed" : "pointer" }}
+              className={`w-full sm:w-auto rounded-xl px-5 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all ${
+                loadingSec
+                  ? "bg-slate-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 cursor-pointer"
+              }`}
             >
               {loadingSec ? "Scanning…" : "Run Security Scan"}
             </button>
@@ -225,37 +261,49 @@ export default function ReportsPage() {
 
           {security && (
             <>
-              <div style={{ display: "flex", gap: "12px" }}>
-                <div style={{
-                  padding: "16px 20px",
-                  borderRadius: "12px",
-                  background: SEVERITY_COLORS[security.severity]?.bg ?? "#f1f5f9",
-                  border: `1px solid`,
-                  flex: 1,
-                  textAlign: "center",
-                }}>
-                  <p style={{ fontSize: "28px", fontWeight: 700, color: SEVERITY_COLORS[security.severity]?.text ?? "#374151", margin: 0, textTransform: "uppercase" }}>{security.severity}</p>
-                  <p style={{ fontSize: "12px", color: "#64748b", margin: "4px 0 0" }}>Overall Severity</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div
+                  className="rounded-xl border p-4 text-center shadow-2xs"
+                  style={{
+                    background: SEVERITY_COLORS[security.severity]?.bg ?? "#f1f5f9",
+                    borderColor: "#e2e8f0",
+                  }}
+                >
+                  <p
+                    className="text-2xl sm:text-3xl font-bold uppercase truncate"
+                    style={{ color: SEVERITY_COLORS[security.severity]?.text ?? "#374151" }}
+                  >
+                    {security.severity}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500 font-medium">Overall Severity</p>
                 </div>
-                <div style={{ padding: "16px 20px", borderRadius: "12px", background: "#fff", border: "1px solid #e2e8f0", flex: 1, textAlign: "center" }}>
-                  <p style={{ fontSize: "28px", fontWeight: 700, color: security.findings_count > 0 ? "#dc2626" : "#16a34a", margin: 0 }}>{security.findings_count}</p>
-                  <p style={{ fontSize: "12px", color: "#64748b", margin: "4px 0 0" }}>Findings</p>
+
+                <div className="rounded-xl border border-slate-200 bg-white p-4 text-center shadow-2xs">
+                  <p
+                    className="text-2xl sm:text-3xl font-bold truncate"
+                    style={{ color: security.findings_count > 0 ? "#dc2626" : "#16a34a" }}
+                  >
+                    {security.findings_count}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500 font-medium">Findings</p>
                 </div>
               </div>
 
               {security.findings.length > 0 && (
-                <div>
-                  <h3 style={{ fontSize: "14px", fontWeight: 700, margin: "0 0 10px" }}>Findings</h3>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <div className="space-y-2">
+                  <h3 className="text-xs sm:text-sm font-bold text-slate-900">Findings Details</h3>
+                  <div className="flex flex-col gap-2">
                     {security.findings.map((f, i) => (
-                      <div key={i} style={{ padding: "12px 14px", borderRadius: "10px", border: "1px solid #fee2e2", background: "#fff" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-                          <span style={{ background: "#fee2e2", color: "#7f1d1d", borderRadius: "6px", padding: "2px 8px", fontSize: "11px", fontWeight: 700 }}>
+                      <div key={i} className="rounded-xl border border-red-200 bg-white p-3 sm:p-4 shadow-2xs space-y-1.5">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="rounded-md bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-800 uppercase">
                             {f.type.replace(/_/g, " ")}
                           </span>
-                          <span style={{ color: "#64748b", fontSize: "12px" }}>{f.file}:{f.line}</span>
+                          <span className="text-xs text-slate-500 font-mono break-all">
+                            {f.file}:{f.line}
+                          </span>
                         </div>
-                        <p style={{ margin: 0, fontSize: "12px", fontFamily: "monospace", color: "#374151", background: "#f8fafc", padding: "6px 8px", borderRadius: "6px" }}>
+                        <p className="m-0 rounded-lg bg-slate-50 border border-slate-200/60 p-2 font-mono text-[11px] sm:text-xs text-slate-800 overflow-x-auto break-all">
                           {f.snippet}
                         </p>
                       </div>
@@ -265,8 +313,10 @@ export default function ReportsPage() {
               )}
 
               {security.findings_count === 0 && (
-                <div style={{ padding: "20px", borderRadius: "12px", background: "#dcfce7", border: "1px solid #86efac", textAlign: "center" }}>
-                  <p style={{ color: "#166534", fontWeight: 600, margin: 0 }}>✅ No security issues detected!</p>
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 p-5 text-center">
+                  <p className="m-0 text-sm font-semibold text-emerald-800">
+                    ✅ No security vulnerabilities detected in repository!
+                  </p>
                 </div>
               )}
             </>
@@ -276,21 +326,25 @@ export default function ReportsPage() {
 
       {/* Latest Report Tab */}
       {tab === "report" && (
-        <section className="panel p-6 space-y-4">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h2 style={{ margin: 0, fontSize: "16px", fontWeight: 700 }}>Latest Analysis Report</h2>
-            <div style={{ display: "flex", gap: "8px" }}>
+        <section className="panel p-4 sm:p-6 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <h2 className="text-sm sm:text-base font-bold text-slate-900">Latest Analysis Report</h2>
+            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
               <button
                 onClick={loadReport}
                 disabled={loadingReport}
-                style={{ background: loadingReport ? "#94a3b8" : "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", border: "none", borderRadius: "10px", padding: "10px 18px", fontWeight: 600, cursor: loadingReport ? "not-allowed" : "pointer" }}
+                className={`flex-1 sm:flex-initial rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all ${
+                  loadingReport
+                    ? "bg-slate-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 cursor-pointer"
+                }`}
               >
                 {loadingReport ? "Loading…" : "Load Report"}
               </button>
               {latestReport && (
                 <button
                   onClick={() => window.print()}
-                  style={{ border: "1px solid #e2e8f0", background: "#fff", borderRadius: "10px", padding: "10px 18px", fontWeight: 600, cursor: "pointer", fontSize: "13px" }}
+                  className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all cursor-pointer shadow-2xs"
                 >
                   🖨️ Print
                 </button>
@@ -298,7 +352,7 @@ export default function ReportsPage() {
             </div>
           </div>
           {latestReport && (
-            <pre style={{ background: "#0f172a", borderRadius: "12px", padding: "20px", color: "#a5f3fc", fontSize: "12px", overflowX: "auto", maxHeight: "500px", overflowY: "auto" }}>
+            <pre className="rounded-xl bg-slate-950 p-3.5 sm:p-5 font-mono text-xs text-cyan-200 overflow-x-auto max-w-full max-h-[500px] overflow-y-auto leading-relaxed">
               {latestReport}
             </pre>
           )}

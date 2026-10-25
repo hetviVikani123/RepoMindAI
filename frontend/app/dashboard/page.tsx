@@ -30,33 +30,24 @@ export default function DashboardPage() {
   if (!activeRepo) {
     return (
       <Shell title="Dashboard" subtitle="Live overview of repository intelligence.">
-        <section className="panel p-12 text-center">
-          <div style={{ fontSize: "48px", marginBottom: "16px" }}>🧠</div>
-          <h2 style={{ fontSize: "22px", marginBottom: "8px" }}>Welcome to RepoMind AI</h2>
-          <p style={{ color: "#64748b", marginBottom: "24px" }}>
+        <section className="panel p-6 sm:p-10 md:p-12 text-center">
+          <div className="text-4xl sm:text-5xl mb-4">🧠</div>
+          <h2 className="text-lg sm:text-2xl font-bold mb-2 text-slate-900">Welcome to RepoMind AI</h2>
+          <p className="max-w-xl mx-auto text-xs sm:text-sm text-slate-600 mb-6 leading-relaxed">
             Import a GitHub repository to unlock all features: architecture analysis, UML diagrams,
             AI chat, security reports, and auto-generated documentation.
           </p>
           <button
             onClick={() => router.push("/repository-upload")}
-            style={{
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              color: "#fff",
-              border: "none",
-              borderRadius: "12px",
-              padding: "12px 28px",
-              fontWeight: 700,
-              fontSize: "15px",
-              cursor: "pointer",
-            }}
+            className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 text-sm font-bold text-white shadow-md hover:from-indigo-700 hover:to-purple-700 transition-all cursor-pointer"
           >
             Import Repository →
           </button>
         </section>
 
-        <section className="panel p-6">
-          <h2 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "16px" }}>Onboarding Flow</h2>
-          <ol style={{ paddingLeft: "20px", margin: 0, display: "flex", flexDirection: "column", gap: "12px" }}>
+        <section className="panel p-4 sm:p-6">
+          <h2 className="text-sm sm:text-base font-bold text-slate-900 mb-4">Onboarding Flow</h2>
+          <ol className="m-0 pl-4 sm:pl-5 flex flex-col gap-3">
             {[
               "Paste a GitHub URL in Repository Upload",
               "Wait for the analysis pipeline to complete (AST parser, embeddings, knowledge graph, static analysis)",
@@ -65,8 +56,8 @@ export default function DashboardPage() {
               "View technical debt score and security findings in Reports",
               "Generate README and module documentation automatically",
             ].map((step, i) => (
-              <li key={i} style={{ fontSize: "14px", color: "#374151" }}>
-                <strong style={{ color: "#6366f1" }}>Step {i + 1}:</strong> {step}
+              <li key={i} className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                <strong className="text-indigo-600 font-semibold">Step {i + 1}:</strong> {step}
               </li>
             ))}
           </ol>
@@ -82,7 +73,7 @@ export default function DashboardPage() {
   return (
     <Shell title="Dashboard" subtitle={`Repository: ${activeRepo.name}`}>
       {/* KPI Cards */}
-      <section style={{ display: "grid", gap: "16px", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))" }}>
+      <section className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         {[
           { label: "Repository ID", value: `#${activeRepo.id}` },
           { label: "Language", value: activeRepo.language || "—" },
@@ -95,77 +86,72 @@ export default function DashboardPage() {
         ].map(({ label, value, color }) => (
           <article
             key={label}
-            style={{
-              padding: "20px",
-              borderRadius: "16px",
-              border: "1px solid #e2e8f0",
-              background: "linear-gradient(140deg, #fff, #f8fafc)",
-            }}
+            className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50/60 p-3.5 sm:p-5 shadow-2xs"
           >
-            <p style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.08em", color: "#94a3b8", margin: "0 0 8px" }}>{label}</p>
-            <p style={{ fontSize: "24px", fontWeight: 700, margin: 0, color: color ?? "#0f172a" }}>{value}</p>
+            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">
+              {label}
+            </p>
+            <p
+              className="text-lg sm:text-2xl font-bold truncate mt-1"
+              style={{ color: color ?? "#0f172a" }}
+              title={String(value)}
+            >
+              {value}
+            </p>
           </article>
         ))}
       </section>
 
       {/* Quick Actions */}
-      <section className="panel p-6">
-        <h2 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "16px" }}>Quick Actions</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "10px" }}>
+      <section className="panel p-4 sm:p-6">
+        <h2 className="text-sm sm:text-base font-bold text-slate-900 mb-3 sm:mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2.5 sm:gap-3">
           {[
-            { href: "/analysis-progress", icon: "📊", label: "Analysis Progress" },
+            { href: "/analysis-progress", icon: "📊", label: "Analysis" },
             { href: "/architecture", icon: "🏗️", label: "Architecture" },
-            { href: "/uml", icon: "📐", label: "UML Diagrams" },
+            { href: "/uml", icon: "📐", label: "UML" },
             { href: "/dependency-graph", icon: "🔗", label: "Dependencies" },
             { href: "/ai-chat", icon: "🤖", label: "AI Chat" },
             { href: "/reports", icon: "📋", label: "Reports" },
-            { href: "/documentation", icon: "📄", label: "Documentation" },
+            { href: "/documentation", icon: "📄", label: "Docs" },
           ].map(({ href, icon, label }) => (
             <a
               key={href}
               href={href}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "8px",
-                padding: "20px 12px",
-                borderRadius: "14px",
-                border: "1px solid #e2e8f0",
-                background: "#fff",
-                textDecoration: "none",
-                color: "#0f172a",
-                fontSize: "13px",
-                fontWeight: 600,
-                transition: "all 0.15s ease",
-              }}
+              className="flex flex-col items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white p-3 sm:p-4 text-slate-800 shadow-2xs hover:bg-indigo-50/50 hover:border-indigo-200 hover:text-indigo-600 transition-all text-center"
             >
-              <span style={{ fontSize: "28px" }}>{icon}</span>
-              {label}
+              <span className="text-2xl sm:text-3xl">{icon}</span>
+              <span className="text-xs font-semibold leading-tight">{label}</span>
             </a>
           ))}
         </div>
       </section>
 
       {/* Repo Details */}
-      <section className="panel p-6">
-        <h2 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "12px" }}>Repository Details</h2>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
-          <tbody>
-            {[
-              ["Name", activeRepo.name],
-              ["URL", activeRepo.url],
-              ["Local Path", activeRepo.local_path],
-              ["Language", activeRepo.language],
-              ["Framework", activeRepo.framework],
-            ].map(([k, v]) => (
-              <tr key={k} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                <td style={{ padding: "8px 0", color: "#64748b", width: "140px", fontWeight: 500 }}>{k}</td>
-                <td style={{ padding: "8px 0", wordBreak: "break-all" }}>{v}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <section className="panel p-4 sm:p-6">
+        <h2 className="text-sm sm:text-base font-bold text-slate-900 mb-3">Repository Details</h2>
+        <div className="overflow-x-auto w-full">
+          <table className="w-full border-collapse text-xs sm:text-sm">
+            <tbody>
+              {[
+                ["Name", activeRepo.name],
+                ["URL", activeRepo.url],
+                ["Local Path", activeRepo.local_path],
+                ["Language", activeRepo.language],
+                ["Framework", activeRepo.framework],
+              ].map(([k, v]) => (
+                <tr key={k} className="border-b border-slate-100 last:border-none">
+                  <td className="py-2.5 pr-4 text-slate-500 font-medium whitespace-nowrap w-28 sm:w-36">
+                    {k}
+                  </td>
+                  <td className="py-2.5 text-slate-900 font-mono text-[11px] sm:text-xs break-all">
+                    {v || "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
     </Shell>
   );

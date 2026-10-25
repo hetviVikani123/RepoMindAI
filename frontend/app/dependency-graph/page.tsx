@@ -41,11 +41,12 @@ export default function DependencyGraphPage() {
   if (!activeRepo) {
     return (
       <Shell title="Dependency Graph" subtitle="Inspect imports and circular module relationships.">
-        <section className="panel p-8 text-center">
-          <p style={{ color: "#64748b", marginBottom: "16px" }}>No repository selected.</p>
+        <section className="panel p-6 sm:p-10 text-center">
+          <div className="text-4xl mb-3">🔗</div>
+          <p className="text-xs sm:text-sm text-slate-500 mb-4">No repository selected.</p>
           <button
             onClick={() => router.push("/repository-upload")}
-            style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", border: "none", borderRadius: "10px", padding: "10px 20px", cursor: "pointer", fontWeight: 600 }}
+            className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-md hover:from-indigo-700 hover:to-purple-700 transition-all cursor-pointer"
           >
             Import Repository →
           </button>
@@ -56,36 +57,32 @@ export default function DependencyGraphPage() {
 
   return (
     <Shell title="Dependency Graph" subtitle={`Module dependencies for: ${activeRepo.name}`}>
-      <section className="panel p-6 space-y-4">
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <p style={{ margin: 0, fontSize: "14px", color: "#64748b" }}>
+      <section className="panel p-4 sm:p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <p className="m-0 text-xs sm:text-sm text-slate-500 max-w-xl leading-relaxed">
             Parses import statements and builds a dependency graph. Detects circular dependencies.
           </p>
           <button
             onClick={analyze}
             disabled={loading}
-            style={{
-              background: loading ? "#94a3b8" : "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              color: "#fff",
-              border: "none",
-              borderRadius: "10px",
-              padding: "10px 20px",
-              fontWeight: 600,
-              cursor: loading ? "not-allowed" : "pointer",
-            }}
+            className={`w-full sm:w-auto rounded-xl px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all whitespace-nowrap ${
+              loading
+                ? "bg-slate-400 cursor-not-allowed"
+                : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 cursor-pointer"
+            }`}
           >
             {loading ? "Analyzing…" : "Analyze Dependencies"}
           </button>
         </div>
 
         {error && (
-          <div style={{ padding: "12px", borderRadius: "10px", background: "rgba(239,68,68,0.08)", color: "#dc2626", fontSize: "13px" }}>
+          <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-xs sm:text-sm text-red-600">
             {error}
           </div>
         )}
 
         {moduleCount > 0 && (
-          <div style={{ display: "flex", gap: "16px" }}>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
             {[
               { label: "Modules", value: moduleCount, color: "#6366f1" },
               { label: "Circular Deps", value: circular.length, color: circular.length > 0 ? "#dc2626" : "#16a34a" },
@@ -94,10 +91,10 @@ export default function DependencyGraphPage() {
             ].map(({ label, value, color }) => (
               <div
                 key={label}
-                style={{ flex: 1, border: "1px solid #e2e8f0", borderRadius: "12px", padding: "14px", textAlign: "center", background: "#fff" }}
+                className="rounded-xl border border-slate-200 bg-white p-3 sm:p-4 text-center shadow-2xs"
               >
-                <p style={{ fontSize: "24px", fontWeight: 700, color, margin: 0 }}>{value}</p>
-                <p style={{ fontSize: "12px", color: "#64748b", margin: "4px 0 0" }}>{label}</p>
+                <p className="text-xl sm:text-2xl font-bold truncate" style={{ color }}>{value}</p>
+                <p className="mt-1 text-[11px] sm:text-xs text-slate-500 font-medium">{label}</p>
               </div>
             ))}
           </div>
@@ -105,13 +102,13 @@ export default function DependencyGraphPage() {
 
         {/* Circular dependencies warning */}
         {circular.length > 0 && (
-          <div style={{ padding: "14px 16px", borderRadius: "12px", background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.2)" }}>
-            <h3 style={{ color: "#dc2626", fontSize: "14px", fontWeight: 700, margin: "0 0 8px" }}>
+          <div className="rounded-xl border border-red-200 bg-red-50/50 p-3.5 sm:p-4">
+            <h3 className="text-xs sm:text-sm font-bold text-red-700 mb-2">
               ⚠️ {circular.length} Circular Dependenc{circular.length === 1 ? "y" : "ies"} Detected
             </h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+            <div className="flex flex-col gap-1">
               {circular.slice(0, 10).map((pair, i) => (
-                <p key={i} style={{ margin: 0, fontSize: "12px", fontFamily: "monospace", color: "#7f1d1d" }}>
+                <p key={i} className="m-0 font-mono text-[11px] sm:text-xs text-red-900 break-all">
                   {pair[0]} ↔ {pair[1]}
                 </p>
               ))}
@@ -121,7 +118,7 @@ export default function DependencyGraphPage() {
 
         {/* Layer Color Legend */}
         {elements.length > 0 && (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", padding: "10px 14px", background: "#f8fafc", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
+          <div className="flex flex-wrap gap-2 sm:gap-3 rounded-xl border border-slate-200 bg-slate-50/80 p-2.5 sm:p-3">
             {[
               { label: "Entry", color: "#8b5cf6" },
               { label: "API / Routes", color: "#3b82f6" },
@@ -134,24 +131,21 @@ export default function DependencyGraphPage() {
               { label: "Scripts", color: "#f97316" },
               { label: "Data", color: "#14b8a6" },
             ].map(({ label, color }) => (
-              <div key={label} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11px", color: "#475569" }}>
-                <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: color, display: "inline-block" }} />
+              <div key={label} className="flex items-center gap-1.5 text-[11px] text-slate-600">
+                <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: color }} />
                 <span>{label}</span>
               </div>
             ))}
           </div>
         )}
 
-
         {/* Cytoscape graph */}
         {elements.length > 0 && (
-          <div>
-            <h3 style={{ fontSize: "14px", fontWeight: 700, marginBottom: "10px" }}>
+          <div className="space-y-2">
+            <h3 className="text-xs sm:text-sm font-bold text-slate-900">
               Dependency Graph ({elements.filter((e) => !e.data.source).length} nodes)
             </h3>
-            <div style={{ border: "1px solid #e2e8f0", borderRadius: "12px", overflow: "hidden" }}>
-              <CytoscapeGraph elements={elements} />
-            </div>
+            <CytoscapeGraph elements={elements} />
           </div>
         )}
       </section>

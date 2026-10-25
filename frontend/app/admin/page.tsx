@@ -37,79 +37,103 @@ export default function AdminPage() {
   return (
     <Shell title="Admin Panel" subtitle="Manage users, roles, and system activity.">
       {error && (
-        <section className="panel p-5" style={{ background: "rgba(239,68,68,0.08)", color: "#dc2626" }}>
+        <section className="rounded-xl border border-red-200 bg-red-50 p-4 text-xs sm:text-sm text-red-600">
           {error}
         </section>
       )}
 
-      <section className="panel p-5">
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
-          <h2 style={{ margin: 0, fontSize: "18px" }}>System Stats</h2>
+      <section className="panel p-4 sm:p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <h2 className="text-sm sm:text-base font-bold text-slate-900 m-0">System Stats</h2>
           <button
             onClick={refresh}
             disabled={loading}
-            style={{ background: loading ? "#94a3b8" : "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", border: "none", borderRadius: "10px", padding: "10px 18px", fontWeight: 600, cursor: loading ? "not-allowed" : "pointer" }}
+            className={`w-full sm:w-auto rounded-xl px-5 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all whitespace-nowrap ${
+              loading
+                ? "bg-slate-400 cursor-not-allowed"
+                : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 cursor-pointer"
+            }`}
           >
             {loading ? "Refreshing…" : "Refresh"}
           </button>
         </div>
+
         {stats && (
-          <div className="mt-4 grid gap-3 md:grid-cols-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
             {[
               ["Users", stats.total_users],
               ["Repositories", stats.total_repositories],
               ["Embeddings", stats.total_embeddings],
               ["Analyses", stats.total_analyses],
             ].map(([label, value]) => (
-              <div key={label as string} style={{ border: "1px solid #e2e8f0", borderRadius: "12px", padding: "16px", background: "#fff" }}>
-                <p style={{ margin: 0, color: "#64748b", fontSize: "12px", textTransform: "uppercase" }}>{label as string}</p>
-                <p style={{ margin: "6px 0 0", fontSize: "28px", fontWeight: 700 }}>{value as number}</p>
+              <div
+                key={label as string}
+                className="rounded-xl border border-slate-200 bg-white p-3.5 sm:p-4 shadow-2xs"
+              >
+                <p className="m-0 text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  {label as string}
+                </p>
+                <p className="m-0 mt-1 text-xl sm:text-2xl font-bold text-slate-900 truncate">
+                  {Number(value).toLocaleString()}
+                </p>
               </div>
             ))}
           </div>
         )}
       </section>
 
-      <section className="panel p-5 space-y-4">
-        <h2 style={{ margin: 0, fontSize: "18px" }}>Users</h2>
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+      <section className="panel p-4 sm:p-6 space-y-4">
+        <h2 className="text-sm sm:text-base font-bold text-slate-900 m-0">Users</h2>
+        <div className="overflow-x-auto w-full rounded-xl border border-slate-200 bg-white">
+          <table className="w-full min-w-[540px] border-collapse text-xs sm:text-sm">
             <thead>
-              <tr style={{ textAlign: "left", color: "#64748b" }}>
-                <th style={{ padding: "10px 8px" }}>Email</th>
-                <th style={{ padding: "10px 8px" }}>Role</th>
-                <th style={{ padding: "10px 8px" }}>Repos</th>
-                <th style={{ padding: "10px 8px" }}>Actions</th>
+              <tr className="bg-slate-50 border-b border-slate-200 text-slate-600">
+                <th className="py-2.5 px-3.5 text-left font-semibold">Email</th>
+                <th className="py-2.5 px-3.5 text-left font-semibold">Role</th>
+                <th className="py-2.5 px-3.5 text-left font-semibold">Repos</th>
+                <th className="py-2.5 px-3.5 text-left font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
               {users.map((user) => (
-                <tr key={user.id} style={{ borderTop: "1px solid #e2e8f0" }}>
-                  <td style={{ padding: "10px 8px" }}>{user.email}</td>
-                  <td style={{ padding: "10px 8px" }}>{user.role}</td>
-                  <td style={{ padding: "10px 8px" }}>{user.repository_count}</td>
-                  <td style={{ padding: "10px 8px", display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                    {["developer", "analyst", "admin"].map((role) => (
+                <tr key={user.id} className="border-b border-slate-100 last:border-none">
+                  <td className="py-2.5 px-3.5 font-medium text-slate-900 break-all">{user.email}</td>
+                  <td className="py-2.5 px-3.5">
+                    <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-700 capitalize">
+                      {user.role}
+                    </span>
+                  </td>
+                  <td className="py-2.5 px-3.5 text-slate-600 font-medium">{user.repository_count}</td>
+                  <td className="py-2.5 px-3.5">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {["developer", "analyst", "admin"].map((role) => (
+                        <button
+                          key={role}
+                          onClick={async () => {
+                            await updateUserRole(user.id, role);
+                            await refresh();
+                          }}
+                          className={`rounded-lg border px-2 py-1 text-[11px] font-medium transition-all cursor-pointer ${
+                            user.role === role
+                              ? "border-indigo-300 bg-indigo-50 text-indigo-700 font-bold"
+                              : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                          }`}
+                        >
+                          {role}
+                        </button>
+                      ))}
                       <button
-                        key={role}
                         onClick={async () => {
-                          await updateUserRole(user.id, role);
-                          await refresh();
+                          if (confirm(`Delete user ${user.email}?`)) {
+                            await deleteUser(user.id);
+                            await refresh();
+                          }
                         }}
-                        style={{ border: "1px solid #e2e8f0", borderRadius: "8px", background: "#fff", padding: "6px 10px", cursor: "pointer" }}
+                        className="rounded-lg border border-red-200 bg-red-50/70 px-2 py-1 text-[11px] font-medium text-red-700 hover:bg-red-100 transition-all cursor-pointer"
                       >
-                        Set {role}
+                        Delete
                       </button>
-                    ))}
-                    <button
-                      onClick={async () => {
-                        await deleteUser(user.id);
-                        await refresh();
-                      }}
-                      style={{ border: "1px solid #fecaca", borderRadius: "8px", background: "#fff1f2", padding: "6px 10px", cursor: "pointer", color: "#b91c1c" }}
-                    >
-                      Delete
-                    </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -118,16 +142,25 @@ export default function AdminPage() {
         </div>
       </section>
 
-      <section className="panel p-5 space-y-4">
-        <h2 style={{ margin: 0, fontSize: "18px" }}>Analysis Logs</h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+      <section className="panel p-4 sm:p-6 space-y-4">
+        <h2 className="text-sm sm:text-base font-bold text-slate-900 m-0">Recent Analysis Logs</h2>
+        <div className="flex flex-col gap-2">
           {logs.map((log) => (
-            <div key={log.id} style={{ border: "1px solid #e2e8f0", borderRadius: "10px", padding: "12px", background: "#fff" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "12px" }}>
-                <strong>{log.report_type}</strong>
-                <span style={{ color: "#64748b" }}>Repo #{log.repository_id}</span>
+            <div
+              key={log.id}
+              className="rounded-xl border border-slate-200 bg-white p-3 sm:p-3.5 shadow-2xs space-y-1"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                <span className="text-xs sm:text-sm font-semibold text-slate-900">
+                  {log.report_type}
+                </span>
+                <span className="rounded-md bg-indigo-50 px-2 py-0.5 text-[11px] font-semibold text-indigo-700 w-fit">
+                  Repo #{log.repository_id}
+                </span>
               </div>
-              <p style={{ margin: "6px 0 0", color: "#94a3b8", fontSize: "12px" }}>{log.created_at}</p>
+              <p className="m-0 text-[11px] text-slate-400">
+                {new Date(log.created_at).toLocaleString()}
+              </p>
             </div>
           ))}
         </div>

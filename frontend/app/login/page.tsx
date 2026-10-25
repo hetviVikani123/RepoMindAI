@@ -14,28 +14,56 @@ export default function LoginPage() {
   const router = useRouter();
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-md items-center p-6">
-      <section className="panel w-full p-6">
-        <h1 className="mb-2 text-3xl">Login</h1>
-        <p className="mb-5 text-sm text-slate-600">Access your repository intelligence workspace.</p>
-        <div className="mb-4 flex gap-2">
+    <main className="mx-auto flex min-h-screen w-full max-w-md items-center justify-center p-3.5 sm:p-6">
+      <section className="panel w-full p-5 sm:p-8 bg-white shadow-xl border border-slate-200/80 rounded-2xl space-y-4">
+        {/* Branding */}
+        <div className="flex items-center gap-2.5 mb-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 text-indigo-600 font-bold border border-indigo-100 shadow-2xs">
+            🧠
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-slate-900 leading-none">RepoMind AI</h2>
+            <p className="text-[11px] text-slate-500 mt-0.5">Repository Intelligence</p>
+          </div>
+        </div>
+
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            {mode === "login" ? "Welcome back" : "Create your account"}
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            Access your codebase intelligence workspace.
+          </p>
+        </div>
+
+        {/* Mode switcher tabs */}
+        <div className="flex rounded-xl bg-slate-100 p-1 gap-1">
           <button
             type="button"
             onClick={() => setMode("login")}
-            className={`rounded-xl px-3 py-1 text-sm ${mode === "login" ? "bg-blue-800 text-white" : "bg-slate-100"}`}
+            className={`flex-1 rounded-lg py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+              mode === "login"
+                ? "bg-white text-slate-900 shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
           >
-            Login
+            Sign In
           </button>
           <button
             type="button"
             onClick={() => setMode("register")}
-            className={`rounded-xl px-3 py-1 text-sm ${mode === "register" ? "bg-blue-800 text-white" : "bg-slate-100"}`}
+            className={`flex-1 rounded-lg py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+              mode === "register"
+                ? "bg-white text-slate-900 shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
           >
             Register
           </button>
         </div>
+
         <form
-          className="space-y-4"
+          className="space-y-3.5"
           onSubmit={async (e) => {
             e.preventDefault();
             try {
@@ -44,7 +72,7 @@ export default function LoginPage() {
                 setMessage("Registration succeeded. You can now log in.");
               } else {
                 await login(email, password);
-                setMessage("Login successful.");
+                setMessage("Login successful. Redirecting…");
                 router.push("/dashboard");
               }
             } catch (error) {
@@ -52,26 +80,56 @@ export default function LoginPage() {
             }
           }}
         >
-          <input className="w-full rounded-xl border p-3" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <input
-            className="w-full rounded-xl border p-3"
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          {mode === "register" ? (
-            <select className="w-full rounded-xl border p-3" value={role} onChange={(e) => setRole(e.target.value)}>
-              <option value="developer">developer</option>
-              <option value="analyst">analyst</option>
-              <option value="admin">admin</option>
-            </select>
-          ) : null}
-          <button className="w-full rounded-xl bg-blue-800 p-3 font-medium text-white" type="submit">
-            {mode === "login" ? "Sign In" : "Create Account"}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Email</label>
+            <input
+              className="w-full rounded-xl border border-slate-200 bg-white p-2.5 sm:p-3 text-xs sm:text-sm focus:border-indigo-500 focus:outline-hidden transition-all"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+            <input
+              className="w-full rounded-xl border border-slate-200 bg-white p-2.5 sm:p-3 text-xs sm:text-sm focus:border-indigo-500 focus:outline-hidden transition-all"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          {mode === "register" && (
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Role</label>
+              <select
+                className="w-full rounded-xl border border-slate-200 bg-white p-2.5 sm:p-3 text-xs sm:text-sm focus:border-indigo-500 focus:outline-hidden transition-all"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+              >
+                <option value="developer">Developer</option>
+                <option value="analyst">Analyst</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          )}
+
+          <button
+            className="w-full rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 p-2.5 sm:p-3 text-xs sm:text-sm font-bold text-white shadow-md hover:from-indigo-700 hover:to-purple-700 transition-all cursor-pointer mt-2"
+            type="submit"
+          >
+            {mode === "login" ? "Sign In →" : "Create Account →"}
           </button>
         </form>
-        <p className="mt-4 text-xs text-slate-600">{message}</p>
+
+        <div className="rounded-xl bg-slate-50 border border-slate-200/80 p-2.5 text-center text-xs text-slate-600">
+          {message}
+        </div>
       </section>
     </main>
   );

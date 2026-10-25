@@ -62,11 +62,12 @@ export default function AIChatPage() {
   if (!activeRepo) {
     return (
       <Shell title="AI Chat" subtitle="Ask natural-language questions about your codebase.">
-        <section className="panel p-8 text-center">
-          <p style={{ color: "#64748b", marginBottom: "16px" }}>No repository selected.</p>
+        <section className="panel p-6 sm:p-10 text-center">
+          <div className="text-4xl mb-3">🤖</div>
+          <p className="text-xs sm:text-sm text-slate-500 mb-4">No repository selected.</p>
           <button
             onClick={() => router.push("/repository-upload")}
-            style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", border: "none", borderRadius: "10px", padding: "10px 20px", cursor: "pointer", fontWeight: 600 }}
+            className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-md hover:from-indigo-700 hover:to-purple-700 transition-all cursor-pointer"
           >
             Import Repository →
           </button>
@@ -77,40 +78,34 @@ export default function AIChatPage() {
 
   return (
     <Shell title="AI Chat" subtitle={`Codebase Q&A for: ${activeRepo.name}`}>
-      <section className="panel" style={{ display: "flex", flexDirection: "column", height: "70vh" }}>
+      <section className="panel flex flex-col h-[calc(100vh-200px)] min-h-[480px] sm:h-[72vh] overflow-hidden">
         {/* Chat Header */}
-        <div style={{ padding: "16px 20px", borderBottom: "1px solid #e2e8f0", display: "flex", alignItems: "center", gap: "10px" }}>
-          <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "linear-gradient(135deg, #6366f1, #8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px" }}>
+        <div className="flex items-center gap-3 border-b border-slate-200 bg-white px-4 py-3 sm:px-5">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-base text-white shadow-2xs">
             🤖
           </div>
-          <div>
-            <p style={{ margin: 0, fontWeight: 700, fontSize: "14px" }}>RepoMind AI</p>
-            <p style={{ margin: 0, fontSize: "11px", color: "#22c55e" }}>● Online · Context: {activeRepo.name}</p>
+          <div className="min-w-0">
+            <p className="m-0 text-xs sm:text-sm font-bold text-slate-900 leading-tight">RepoMind AI</p>
+            <p className="m-0 text-[11px] text-emerald-600 font-medium truncate flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+              Grounded in {activeRepo.name}
+            </p>
           </div>
         </div>
 
-        {/* Messages */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "20px", display: "flex", flexDirection: "column", gap: "16px" }}>
+        {/* Messages list */}
+        <div className="flex-1 overflow-y-auto p-3 sm:p-5 flex flex-col gap-3 sm:gap-4 bg-slate-50/40">
           {messages.length === 0 && (
-            <div style={{ textAlign: "center", paddingTop: "40px" }}>
-              <p style={{ color: "#94a3b8", marginBottom: "20px", fontSize: "14px" }}>
-                Ask anything about <strong>{activeRepo.name}</strong>
+            <div className="text-center py-6 sm:py-10 max-w-lg mx-auto">
+              <p className="text-xs sm:text-sm text-slate-500 mb-3 sm:mb-4">
+                Ask anything about <strong className="text-slate-800">{activeRepo.name}</strong>
               </p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", justifyContent: "center" }}>
+              <div className="flex flex-wrap gap-2 justify-center">
                 {suggestions.map((s) => (
                   <button
                     key={s}
                     onClick={() => setInput(s)}
-                    style={{
-                      padding: "8px 14px",
-                      borderRadius: "20px",
-                      border: "1px solid #e2e8f0",
-                      background: "#f8fafc",
-                      fontSize: "12px",
-                      cursor: "pointer",
-                      color: "#374151",
-                      transition: "all 0.15s",
-                    }}
+                    className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] sm:text-xs text-slate-700 hover:border-indigo-300 hover:bg-indigo-50/50 hover:text-indigo-600 transition-all cursor-pointer shadow-2xs"
                   >
                     {s}
                   </button>
@@ -122,65 +117,50 @@ export default function AIChatPage() {
           {messages.map((msg, i) => (
             <div
               key={i}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: msg.role === "user" ? "flex-end" : "flex-start",
-                gap: "4px",
-              }}
+              className={`flex flex-col gap-1 ${
+                msg.role === "user" ? "items-end" : "items-start"
+              }`}
             >
               <div
-                style={{
-                  maxWidth: "80%",
-                  padding: "12px 16px",
-                  borderRadius: msg.role === "user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
-                  background: msg.role === "user"
-                    ? "linear-gradient(135deg, #6366f1, #8b5cf6)"
-                    : "#f1f5f9",
-                  color: msg.role === "user" ? "#fff" : "#0f172a",
-                  fontSize: "14px",
-                  lineHeight: "1.6",
-                  whiteSpace: "pre-wrap",
-                  wordBreak: "break-word",
-                }}
+                className={`max-w-[90%] sm:max-w-[80%] rounded-2xl px-3.5 py-2.5 sm:px-4 sm:py-3 text-xs sm:text-sm leading-relaxed break-words shadow-2xs ${
+                  msg.role === "user"
+                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-br-xs"
+                    : "bg-white text-slate-900 border border-slate-200 rounded-bl-xs"
+                }`}
               >
                 {msg.content}
               </div>
+
               {msg.citations && msg.citations.length > 0 && (
-                <div style={{ maxWidth: "80%" }}>
-                  <p style={{ fontSize: "11px", color: "#94a3b8", margin: "4px 0 2px" }}>Sources:</p>
-                  {msg.citations.map((c, ci) => (
-                    <span
-                      key={ci}
-                      style={{
-                        display: "inline-block",
-                        background: "#ede9fe",
-                        color: "#7c3aed",
-                        borderRadius: "6px",
-                        padding: "2px 8px",
-                        fontSize: "11px",
-                        marginRight: "4px",
-                        marginBottom: "2px",
-                        fontFamily: "monospace",
-                      }}
-                    >
-                      {c}
-                    </span>
-                  ))}
+                <div className="max-w-[90%] sm:max-w-[80%]">
+                  <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1">
+                    Sources:
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {msg.citations.map((c, ci) => (
+                      <span
+                        key={ci}
+                        className="rounded-md bg-purple-50 border border-purple-200/60 px-1.5 py-0.5 font-mono text-[10px] text-purple-700 break-all"
+                      >
+                        {c}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
-              <p style={{ fontSize: "10px", color: "#94a3b8", margin: 0 }}>
-                {msg.timestamp.toLocaleTimeString()}
-              </p>
+
+              <span className="text-[10px] text-slate-400">
+                {msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+              </span>
             </div>
           ))}
 
           {loading && (
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "linear-gradient(135deg, #6366f1, #8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px" }}>
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-xs text-white">
                 🤖
               </div>
-              <div style={{ padding: "12px 16px", borderRadius: "18px 18px 18px 4px", background: "#f1f5f9", fontSize: "14px", color: "#64748b" }}>
+              <div className="rounded-2xl rounded-bl-xs border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-500">
                 Searching codebase context…
               </div>
             </div>
@@ -188,8 +168,11 @@ export default function AIChatPage() {
           <div ref={bottomRef} />
         </div>
 
-        {/* Input */}
-        <form onSubmit={handleSend} style={{ padding: "16px 20px", borderTop: "1px solid #e2e8f0", display: "flex", gap: "10px" }}>
+        {/* Chat Input */}
+        <form
+          onSubmit={handleSend}
+          className="flex items-center gap-2 border-t border-slate-200 bg-white p-2.5 sm:p-3"
+        >
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -199,32 +182,20 @@ export default function AIChatPage() {
                 handleSend(e as unknown as React.FormEvent);
               }
             }}
-            placeholder="Ask about authentication, APIs, design patterns…  (Enter to send)"
-            style={{
-              flex: 1,
-              borderRadius: "12px",
-              border: "1px solid #e2e8f0",
-              padding: "12px 16px",
-              fontSize: "14px",
-              resize: "none",
-              height: "52px",
-              fontFamily: "inherit",
-            }}
+            placeholder="Ask about authentication, APIs, structure… (Enter to send)"
+            rows={1}
+            className="flex-1 resize-none rounded-xl border border-slate-200 p-2.5 sm:p-3 text-xs sm:text-sm focus:border-indigo-500 focus:outline-hidden transition-all max-h-24"
             disabled={loading}
           />
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            style={{
-              background: loading || !input.trim() ? "#94a3b8" : "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              color: "#fff",
-              border: "none",
-              borderRadius: "12px",
-              padding: "0 20px",
-              fontWeight: 700,
-              cursor: loading || !input.trim() ? "not-allowed" : "pointer",
-              fontSize: "16px",
-            }}
+            className={`flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl font-bold text-white shadow-sm transition-all ${
+              loading || !input.trim()
+                ? "bg-slate-300 cursor-not-allowed"
+                : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 cursor-pointer"
+            }`}
+            aria-label="Send message"
           >
             ↑
           </button>

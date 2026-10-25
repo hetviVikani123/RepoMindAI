@@ -125,31 +125,27 @@ export default function SettingsPage() {
       {/* Notifications */}
       {message && (
         <div
-          style={{
-            padding: "12px 16px",
-            borderRadius: "12px",
-            background: message.type === "success" ? "#dcfce7" : "#fee2e2",
-            color: message.type === "success" ? "#166534" : "#991b1b",
-            fontSize: "14px",
-            fontWeight: 600,
-          }}
-          className="panel"
+          className={`rounded-xl border p-3.5 sm:p-4 text-xs sm:text-sm font-semibold shadow-2xs ${
+            message.type === "success"
+              ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+              : "bg-red-50 border-red-200 text-red-800"
+          }`}
         >
           {message.text}
         </div>
       )}
 
       {/* Main Settings Form */}
-      <form onSubmit={handleSave} className="panel p-6 space-y-6">
+      <form onSubmit={handleSave} className="panel p-4 sm:p-6 space-y-5 sm:space-y-6">
         <div>
-          <h2 style={{ margin: "0 0 6px", fontSize: "18px", fontWeight: 700 }}>AI & Model Provider</h2>
-          <p style={{ margin: 0, fontSize: "13px", color: "#64748b" }}>
+          <h2 className="text-sm sm:text-base font-bold text-slate-900 mb-1">AI & Model Provider</h2>
+          <p className="m-0 text-xs text-slate-500">
             Choose which AI engine powers natural-language codebase reasoning in RepoMind AI.
           </p>
         </div>
 
         {/* Provider Selection */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "10px" }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
           {[
             { id: "gemini", name: "Google Gemini", badge: "Recommended (Free Tier)" },
             { id: "openai", name: "OpenAI", badge: "GPT-4o Mini" },
@@ -159,57 +155,57 @@ export default function SettingsPage() {
           ].map((item) => (
             <label
               key={item.id}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "4px",
-                padding: "14px",
-                borderRadius: "12px",
-                border: provider === item.id ? "2px solid #6366f1" : "1px solid #e2e8f0",
-                background: provider === item.id ? "#f5f3ff" : "#fff",
-                cursor: "pointer",
-              }}
+              className={`flex flex-col gap-1 p-3.5 rounded-xl border cursor-pointer transition-all ${
+                provider === item.id
+                  ? "border-indigo-600 bg-indigo-50/50 shadow-2xs"
+                  : "border-slate-200 bg-white hover:bg-slate-50"
+              }`}
             >
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontWeight: 700, fontSize: "14px" }}>{item.name}</span>
+              <div className="flex items-center justify-between">
+                <span className="text-xs sm:text-sm font-bold text-slate-900">{item.name}</span>
                 <input
                   type="radio"
                   name="provider"
                   value={item.id}
                   checked={provider === item.id}
                   onChange={() => setProvider(item.id)}
+                  className="h-4 w-4 text-indigo-600"
                 />
               </div>
-              <span style={{ fontSize: "11px", color: "#64748b" }}>{item.badge}</span>
+              <span className="text-[11px] text-slate-500">{item.badge}</span>
             </label>
           ))}
         </div>
 
         {/* Google Gemini Config */}
         {provider === "gemini" && (
-          <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "12px", border: "1px solid #e2e8f0" }} className="space-y-3">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <label style={{ fontSize: "13px", fontWeight: 600 }}>Google Gemini API Key</label>
+          <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50/80 p-3.5 sm:p-4">
+            <div className="flex flex-wrap items-center justify-between gap-1">
+              <label className="text-xs sm:text-sm font-semibold text-slate-800">
+                Google Gemini API Key
+              </label>
               {hasGoogleKey && (
-                <span style={{ fontSize: "11px", background: "#dcfce7", color: "#166534", padding: "2px 8px", borderRadius: "100px", fontWeight: 600 }}>
+                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800">
                   ✓ Key Saved in Backend
                 </span>
               )}
             </div>
             <input
               type="password"
-              className="w-full rounded-xl border p-3 bg-white"
+              className="w-full rounded-xl border border-slate-200 bg-white p-2.5 sm:p-3 text-xs sm:text-sm"
               placeholder={hasGoogleKey ? "Enter new key to update, or leave blank to keep current" : "AIzaSy..."}
               value={googleKey}
               onChange={(e) => setGoogleKey(e.target.value)}
             />
-            <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>
-              Get a free API key at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" style={{ color: "#6366f1", textDecoration: "underline" }}>Google AI Studio</a>.
+            <p className="m-0 text-[11px] sm:text-xs text-slate-500">
+              Get a free API key at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-indigo-600 underline font-medium">Google AI Studio</a>.
             </p>
 
-            <label style={{ fontSize: "13px", fontWeight: 600, display: "block", marginTop: "10px" }}>Gemini Model</label>
+            <label className="block text-xs sm:text-sm font-semibold text-slate-800 pt-1">
+              Gemini Model
+            </label>
             <select
-              className="w-full rounded-xl border p-3 bg-white"
+              className="w-full rounded-xl border border-slate-200 bg-white p-2.5 sm:p-3 text-xs sm:text-sm"
               value={geminiModel}
               onChange={(e) => setGeminiModel(e.target.value)}
             >
@@ -222,25 +218,29 @@ export default function SettingsPage() {
 
         {/* OpenAI Config */}
         {provider === "openai" && (
-          <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "12px", border: "1px solid #e2e8f0" }} className="space-y-3">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <label style={{ fontSize: "13px", fontWeight: 600 }}>OpenAI API Key</label>
+          <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50/80 p-3.5 sm:p-4">
+            <div className="flex flex-wrap items-center justify-between gap-1">
+              <label className="text-xs sm:text-sm font-semibold text-slate-800">
+                OpenAI API Key
+              </label>
               {hasOpenaiKey && (
-                <span style={{ fontSize: "11px", background: "#dcfce7", color: "#166534", padding: "2px 8px", borderRadius: "100px", fontWeight: 600 }}>
+                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800">
                   ✓ Key Saved in Backend
                 </span>
               )}
             </div>
             <input
               type="password"
-              className="w-full rounded-xl border p-3 bg-white"
+              className="w-full rounded-xl border border-slate-200 bg-white p-2.5 sm:p-3 text-xs sm:text-sm"
               placeholder={hasOpenaiKey ? "Enter new key to update, or leave blank to keep current" : "sk-..."}
               value={openaiKey}
               onChange={(e) => setOpenaiKey(e.target.value)}
             />
-            <label style={{ fontSize: "13px", fontWeight: 600, display: "block", marginTop: "10px" }}>Model</label>
+            <label className="block text-xs sm:text-sm font-semibold text-slate-800 pt-1">
+              Model
+            </label>
             <select
-              className="w-full rounded-xl border p-3 bg-white"
+              className="w-full rounded-xl border border-slate-200 bg-white p-2.5 sm:p-3 text-xs sm:text-sm"
               value={openaiModel}
               onChange={(e) => setOpenaiModel(e.target.value)}
             >
@@ -252,42 +252,46 @@ export default function SettingsPage() {
 
         {/* Groq Config */}
         {provider === "groq" && (
-          <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "12px", border: "1px solid #e2e8f0" }} className="space-y-3">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <label style={{ fontSize: "13px", fontWeight: 600 }}>Groq API Key</label>
+          <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50/80 p-3.5 sm:p-4">
+            <div className="flex flex-wrap items-center justify-between gap-1">
+              <label className="text-xs sm:text-sm font-semibold text-slate-800">
+                Groq API Key
+              </label>
               {hasGroqKey && (
-                <span style={{ fontSize: "11px", background: "#dcfce7", color: "#166534", padding: "2px 8px", borderRadius: "100px", fontWeight: 600 }}>
+                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800">
                   ✓ Key Saved in Backend
                 </span>
               )}
             </div>
             <input
               type="password"
-              className="w-full rounded-xl border p-3 bg-white"
+              className="w-full rounded-xl border border-slate-200 bg-white p-2.5 sm:p-3 text-xs sm:text-sm"
               placeholder={hasGroqKey ? "Enter new key to update, or leave blank to keep current" : "gsk_..."}
               value={groqKey}
               onChange={(e) => setGroqKey(e.target.value)}
             />
-            <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>
-              Create a free key at <a href="https://console.groq.com/keys" target="_blank" rel="noreferrer" style={{ color: "#6366f1", textDecoration: "underline" }}>console.groq.com</a>.
+            <p className="m-0 text-[11px] sm:text-xs text-slate-500">
+              Create a free key at <a href="https://console.groq.com/keys" target="_blank" rel="noreferrer" className="text-indigo-600 underline font-medium">console.groq.com</a>.
             </p>
           </div>
         )}
 
         {/* Claude Config */}
         {provider === "claude" && (
-          <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "12px", border: "1px solid #e2e8f0" }} className="space-y-3">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <label style={{ fontSize: "13px", fontWeight: 600 }}>Anthropic API Key</label>
+          <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50/80 p-3.5 sm:p-4">
+            <div className="flex flex-wrap items-center justify-between gap-1">
+              <label className="text-xs sm:text-sm font-semibold text-slate-800">
+                Anthropic API Key
+              </label>
               {hasAnthropicKey && (
-                <span style={{ fontSize: "11px", background: "#dcfce7", color: "#166534", padding: "2px 8px", borderRadius: "100px", fontWeight: 600 }}>
+                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800">
                   ✓ Key Saved in Backend
                 </span>
               )}
             </div>
             <input
               type="password"
-              className="w-full rounded-xl border p-3 bg-white"
+              className="w-full rounded-xl border border-slate-200 bg-white p-2.5 sm:p-3 text-xs sm:text-sm"
               placeholder={hasAnthropicKey ? "Enter new key to update, or leave blank to keep current" : "sk-ant-..."}
               value={anthropicKey}
               onChange={(e) => setAnthropicKey(e.target.value)}
@@ -297,28 +301,24 @@ export default function SettingsPage() {
 
         {/* Ollama Config */}
         {provider === "ollama" && (
-          <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
-            <p style={{ margin: "0 0 8px", fontSize: "13px", fontWeight: 600 }}>Ollama Local Endpoint</p>
-            <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>
+          <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-3.5 sm:p-4">
+            <p className="m-0 mb-1 text-xs sm:text-sm font-semibold text-slate-800">Ollama Local Endpoint</p>
+            <p className="m-0 text-xs text-slate-500 leading-relaxed">
               Connecting to local Ollama server at <code>http://localhost:11434</code>. Ensure Ollama is running with <code>ollama run llama3.2</code>.
             </p>
           </div>
         )}
 
         {/* Buttons */}
-        <div style={{ display: "flex", gap: "10px", alignItems: "center", paddingTop: "10px" }}>
+        <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 pt-2">
           <button
             type="submit"
             disabled={saving}
-            style={{
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              color: "#fff",
-              border: "none",
-              borderRadius: "10px",
-              padding: "10px 24px",
-              fontWeight: 600,
-              cursor: saving ? "not-allowed" : "pointer",
-            }}
+            className={`w-full sm:w-auto rounded-xl px-6 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all ${
+              saving
+                ? "bg-slate-400 cursor-not-allowed"
+                : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 cursor-pointer"
+            }`}
           >
             {saving ? "Saving…" : "Save Settings"}
           </button>
@@ -327,15 +327,9 @@ export default function SettingsPage() {
             type="button"
             onClick={handleTest}
             disabled={testing}
-            style={{
-              background: "#fff",
-              border: "1px solid #cbd5e1",
-              color: "#334155",
-              borderRadius: "10px",
-              padding: "10px 20px",
-              fontWeight: 600,
-              cursor: testing ? "not-allowed" : "pointer",
-            }}
+            className={`w-full sm:w-auto rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 transition-all ${
+              testing ? "cursor-not-allowed opacity-60" : "cursor-pointer"
+            }`}
           >
             {testing ? "Testing Connection…" : "⚡ Test Connection"}
           </button>
@@ -343,42 +337,40 @@ export default function SettingsPage() {
 
         {/* Test Result Box */}
         {testOutput && (
-          <pre
-            style={{
-              background: "#0f172a",
-              color: "#a5f3fc",
-              padding: "16px",
-              borderRadius: "12px",
-              fontSize: "13px",
-              whiteSpace: "pre-wrap",
-            }}
-          >
+          <pre className="whitespace-pre-wrap break-words rounded-xl bg-slate-950 p-3.5 sm:p-4 font-mono text-xs text-cyan-200 leading-relaxed overflow-x-auto max-w-full">
             {testOutput}
           </pre>
         )}
       </form>
 
       {/* Recommended Free Platforms Guide */}
-      <section className="panel space-y-4 p-6">
+      <section className="panel p-4 sm:p-6 space-y-4">
         <div>
-          <h2 style={{ fontSize: "18px", fontWeight: 700, margin: "0 0 4px" }}>Recommended Free-First Platform Stack</h2>
-          <p style={{ fontSize: "13px", color: "#64748b", margin: 0 }}>
+          <h2 className="text-sm sm:text-base font-bold text-slate-900 mb-1">
+            Recommended Free-First Platform Stack
+          </h2>
+          <p className="m-0 text-xs text-slate-500">
             You can run RepoMind AI without paying for expensive subscriptions using these free developer tiers:
           </p>
         </div>
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {freeApiPlatforms.map((platform) => (
-            <article key={platform.name} style={{ border: "1px solid #e2e8f0", borderRadius: "12px", padding: "16px", background: "#fff" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-                <h3 style={{ margin: 0, fontSize: "15px", fontWeight: 700 }}>{platform.name}</h3>
-                <span style={{ fontSize: "11px", fontWeight: 700, background: "#ede9fe", color: "#7c3aed", padding: "2px 8px", borderRadius: "6px" }}>
+            <article
+              key={platform.name}
+              className="rounded-xl border border-slate-200 bg-white p-3.5 sm:p-4 shadow-2xs space-y-1.5"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="m-0 text-xs sm:text-sm font-bold text-slate-900 truncate">
+                  {platform.name}
+                </h3>
+                <span className="rounded-md bg-purple-50 px-2 py-0.5 text-[10px] font-bold text-purple-700 shrink-0">
                   {platform.badge}
                 </span>
               </div>
-              <p style={{ margin: "0 0 6px", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>
+              <p className="m-0 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                 {platform.apis.join(" • ")}
               </p>
-              <p style={{ margin: 0, fontSize: "12px", color: "#334155", lineHeight: 1.5 }}>{platform.note}</p>
+              <p className="m-0 text-xs text-slate-600 leading-relaxed">{platform.note}</p>
             </article>
           ))}
         </div>
