@@ -49,18 +49,20 @@ a {
   text-decoration: none;
 }
 
-.panel {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
-}
+@layer components {
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+  }
 
-.kpi {
-  padding: 16px;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: #fff;
+  .kpi {
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: #fff;
+  }
 }
 
 /* Ensure wide tables and code blocks can scroll without expanding page width */

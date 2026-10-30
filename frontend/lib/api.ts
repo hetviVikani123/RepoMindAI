@@ -194,6 +194,27 @@ export async function deleteUser(userId: number) {
   return response.json();
 }
 
+export async function fetchAdminRepositories() {
+  const response = await fetch(`${API_BASE}/admin/repositories`, {
+    headers: { ...getAuthHeader() }
+  });
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+  return response.json();
+}
+
+export async function deleteAdminRepository(repositoryId: number) {
+  const response = await fetch(`${API_BASE}/admin/repositories/${repositoryId}`, {
+    method: "DELETE",
+    headers: { ...getAuthHeader() }
+  });
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+  return response.json();
+}
+
 export async function triggerPipeline(repositoryId: number) {
   const response = await fetch(`${API_BASE}/repository/${repositoryId}/analyze`, {
     method: "POST",

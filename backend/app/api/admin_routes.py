@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import shutil
+from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.core.auth import get_current_user, require_roles
+from app.core.auth import get_current_user
 from app.core.database import get_db
-from app.models.repository import AnalysisHistory, EmbeddingMetadata, Repository, User
+from app.models.repository import AnalysisHistory, ChatHistory, EmbeddingMetadata, Repository, User
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -26,6 +28,16 @@ def list_users(db: Session = Depends(get_db), admin: User = Depends(_require_adm
             "role": u.role,
             "created_at": u.created_at.isoformat(),
             "repository_count": len(u.repositories),
+            "repositories": [
+                {
+                    "id": r.id,
+                    "name": r.name,
+                    "url": r.url,
+                    "language": r.language,
+                    "created_at": r.created_at.isoformat(),
+                }
+                for r in u.repositories
+            ],
         }
         for u in users
     ]
@@ -42,8 +54,8 @@ def update_user_role(
     if not target:
         raise HTTPException(status_code=404, detail="User not found")
     new_role = payload.get("role", "").lower()
-    if new_role not in ("developer", "analyst", "admin"):
-        raise HTTPException(status_code=400, detail="Invalid role. Must be developer, analyst, or admin.")
+    if new_role not in ("developer", "admin"):
+        raise HTTPException(status_code=400, detail="Invalid role. Must be developer or admin.")
     target.role = new_role
     db.commit()
     return {"id": target.id, "email": target.email, "role": target.role}
@@ -59,6 +71,52 @@ def delete_user(user_id: int, db: Session = Depends(get_db), admin: User = Depen
     db.delete(target)
     db.commit()
     return {"status": "deleted", "user_id": user_id}
+
+
+@router.get("/repositories")
+def list_all_repositories(db: Session = Depends(get_db), admin: User = Depends(_require_admin)):
+    """Returns all uploaded repositories joined with user/owner audit details."""
+    repos = db.query(Repository).order_by(Repository.created_at.desc()).all()
+    return [
+        {
+            "id": r.id,
+            "name": r.name,
+            "url": r.url,
+            "local_path": r.local_path,
+            "language": r.language,
+            "framework": r.framework,
+            "build_system": r.build_system,
+            "created_at": r.created_at.isoformat(),
+            "owner_id": r.owner_id,
+            "owner_email": r.owner.email if r.owner else "Unknown",
+            "owner_role": r.owner.role if r.owner else "Unknown",
+            "file_count": len(r.files),
+        }
+        for r in repos
+    ]
+
+
+@router.delete("/repositories/{repo_id}")
+def delete_repository(repo_id: int, db: Session = Depends(get_db), admin: User = Depends(_require_admin)):
+    """Allows an administrator to delete a malicious or unauthorized repository."""
+    repo = db.query(Repository).filter(Repository.id == repo_id).first()
+    if not repo:
+        raise HTTPException(status_code=404, detail="Repository not found")
+
+    # Remove cloned/copied local directory on disk if it exists
+    try:
+        if repo.local_path and Path(repo.local_path).exists():
+            shutil.rmtree(repo.local_path, ignore_errors=True)
+    except Exception:
+        pass
+
+    # Purge embeddings & chat history for this repository
+    db.query(EmbeddingMetadata).filter(EmbeddingMetadata.repository_id == repo_id).delete(synchronize_session=False)
+    db.query(ChatHistory).filter(ChatHistory.repository_id == repo_id).delete(synchronize_session=False)
+
+    db.delete(repo)
+    db.commit()
+    return {"status": "deleted", "repository_id": repo_id}
 
 
 @router.get("/stats")
@@ -96,3 +154,4 @@ def analysis_logs(
         }
         for log in logs
     ]
+

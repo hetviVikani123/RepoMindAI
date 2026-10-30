@@ -46,10 +46,13 @@ class AuthService:
         self.db = db
 
     def register(self, email: str, password: str, role: str) -> User:
+        clean_role = (role or "developer").lower().strip()
+        if clean_role not in ("developer", "admin"):
+            raise ValueError("Invalid role. Only 'developer' and 'admin' roles are supported.")
         if self.db.query(User).filter(User.email == email).first():
             raise ValueError("Email already registered")
 
-        user = User(email=email, password_hash=pwd_context.hash(_prepare_password(password)), role=role)
+        user = User(email=email, password_hash=pwd_context.hash(_prepare_password(password)), role=clean_role)
         self.db.add(user)
         self.db.commit()
         self.db.refresh(user)

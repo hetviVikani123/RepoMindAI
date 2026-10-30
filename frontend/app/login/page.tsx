@@ -113,7 +113,6 @@ export default function LoginPage() {
                 onChange={(e) => setRole(e.target.value)}
               >
                 <option value="developer">Developer</option>
-                <option value="analyst">Analyst</option>
                 <option value="admin">Admin</option>
               </select>
             </div>

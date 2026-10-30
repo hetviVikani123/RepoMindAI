@@ -106,9 +106,15 @@ def trigger_analysis(
     return {"status": "started", "repository_id": repo.id}
 
 
+def _get_repo(db: Session, repository_id: int, user: User) -> Repository | None:
+    if getattr(user, "role", None) == "admin":
+        return db.query(Repository).filter(Repository.id == repository_id).first()
+    return db.query(Repository).filter(Repository.id == repository_id, Repository.owner_id == user.id).first()
+
+
 @router.get("/repository/{repository_id}", response_model=RepositoryResponse)
 def get_repository(repository_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    repo = db.query(Repository).filter(Repository.id == repository_id, Repository.owner_id == user.id).first()
+    repo = _get_repo(db, repository_id, user)
     if not repo:
         raise HTTPException(status_code=404, detail="Repository not found")
     return repo
@@ -116,7 +122,7 @@ def get_repository(repository_id: int, db: Session = Depends(get_db), user: User
 
 @router.post("/chat", response_model=ChatResponse)
 def chat(payload: ChatRequest, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    _repo = db.query(Repository).filter(Repository.id == payload.repository_id, Repository.owner_id == user.id).first()
+    _repo = _get_repo(db, payload.repository_id, user)
     if not _repo:
         raise HTTPException(status_code=404, detail="Repository not found")
     answer, citations = ChatService(db).ask(payload.repository_id, payload.question)
@@ -125,7 +131,7 @@ def chat(payload: ChatRequest, db: Session = Depends(get_db), user: User = Depen
 
 @router.get("/uml", response_model=AnalysisResponse)
 def get_uml(repository_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    repo = db.query(Repository).filter(Repository.id == repository_id, Repository.owner_id == user.id).first()
+    repo = _get_repo(db, repository_id, user)
     if not repo:
         raise HTTPException(status_code=404, detail="Repository not found")
 
@@ -136,7 +142,7 @@ def get_uml(repository_id: int, db: Session = Depends(get_db), user: User = Depe
 
 @router.get("/dependencies", response_model=AnalysisResponse)
 def get_dependencies(repository_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    repo = db.query(Repository).filter(Repository.id == repository_id, Repository.owner_id == user.id).first()
+    repo = _get_repo(db, repository_id, user)
     if not repo:
         raise HTTPException(status_code=404, detail="Repository not found")
 
@@ -150,7 +156,7 @@ def get_dependencies(repository_id: int, db: Session = Depends(get_db), user: Us
 
 @router.get("/technical-debt", response_model=AnalysisResponse)
 def get_technical_debt(repository_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    repo = db.query(Repository).filter(Repository.id == repository_id, Repository.owner_id == user.id).first()
+    repo = _get_repo(db, repository_id, user)
     if not repo:
         raise HTTPException(status_code=404, detail="Repository not found")
 
@@ -161,7 +167,7 @@ def get_technical_debt(repository_id: int, db: Session = Depends(get_db), user: 
 
 @router.get("/architecture", response_model=AnalysisResponse)
 def get_architecture(repository_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    repo = db.query(Repository).filter(Repository.id == repository_id, Repository.owner_id == user.id).first()
+    repo = _get_repo(db, repository_id, user)
     if not repo:
         raise HTTPException(status_code=404, detail="Repository not found")
 
@@ -174,9 +180,9 @@ def get_architecture(repository_id: int, db: Session = Depends(get_db), user: Us
 def get_security(
     repository_id: int,
     db: Session = Depends(get_db),
-    user: User = Depends(require_roles("developer", "analyst", "admin")),
+    user: User = Depends(require_roles("developer", "admin")),
 ):
-    repo = db.query(Repository).filter(Repository.id == repository_id, Repository.owner_id == user.id).first()
+    repo = _get_repo(db, repository_id, user)
     if not repo:
         raise HTTPException(status_code=404, detail="Repository not found")
 
@@ -189,9 +195,9 @@ def get_security(
 def get_report(
     repository_id: int,
     db: Session = Depends(get_db),
-    user: User = Depends(require_roles("developer", "analyst", "admin")),
+    user: User = Depends(require_roles("developer", "admin")),
 ):
-    repo = db.query(Repository).filter(Repository.id == repository_id, Repository.owner_id == user.id).first()
+    repo = _get_repo(db, repository_id, user)
     if not repo:
         raise HTTPException(status_code=404, detail="Repository not found")
 
@@ -220,7 +226,7 @@ def _save_report(db: Session, repository_id: int, report_type: str, result: dict
 
 @router.get("/repository/{repository_id}/pipeline-status", response_model=PipelineStatusResponse)
 def pipeline_status(repository_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    repo = db.query(Repository).filter(Repository.id == repository_id, Repository.owner_id == user.id).first()
+    repo = _get_repo(db, repository_id, user)
     if not repo:
         raise HTTPException(status_code=404, detail="Repository not found")
 
@@ -230,7 +236,7 @@ def pipeline_status(repository_id: int, db: Session = Depends(get_db), user: Use
 
 @router.get("/documentation", response_model=DocumentationResponse)
 def get_documentation(repository_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    repo = db.query(Repository).filter(Repository.id == repository_id, Repository.owner_id == user.id).first()
+    repo = _get_repo(db, repository_id, user)
     if not repo:
         raise HTTPException(status_code=404, detail="Repository not found")
 
@@ -241,7 +247,7 @@ def get_documentation(repository_id: int, db: Session = Depends(get_db), user: U
 
 @router.get("/repository/{repository_id}/status")
 def repository_status(repository_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    repo = db.query(Repository).filter(Repository.id == repository_id, Repository.owner_id == user.id).first()
+    repo = _get_repo(db, repository_id, user)
     if not repo:
         raise HTTPException(status_code=404, detail="Repository not found")
     from app.models.repository import EmbeddingMetadata
